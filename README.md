@@ -2,7 +2,7 @@
 
 This repository will contain the data collected for a pre-registered study and already includes R scripts for analyses: 
 
-***Tzavella, L., Chambers, C., & Maizey, L. (2019, January 29). The affective priming paradigm as an implicit measure of food attitudes and related choice behaviour. Retrieved from <a href="osf.io/zqrby">osf.io/zqrby</a>*** 
+***Tzavella, L., Maizey, L., Lawrence, A. D., Chambers, C. (2019, January 29). The affective priming paradigm as an implicit measure of food attitudes and related choice behaviour. Retrieved from <a href="osf.io/zqrby">osf.io/zqrby</a>*** 
 
 ## R Project & Rmd files
 All files should be downloaded as a zip folder.
