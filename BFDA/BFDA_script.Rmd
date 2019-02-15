@@ -38,8 +38,7 @@ require(ggplot2)
 #### Create a dataframe for storing simulation results later in the script
 
 ```{r}
-data <- matrix(ncol=3, nrow=10)   
-data <- data.frame(data)
+data <- as.data.frame(matrix(ncol=3, nrow=10))   
 names(data) <- c("Sample_size", "Boundary", "Percentage")
 
 data$Boundary <- c(rep("H1",times=5), rep("H0",times=5))
