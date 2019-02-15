@@ -395,6 +395,9 @@ SW_ER2 <- Shapiro_wilk_ERs(food2_app, nonfood2_app)
 
 #Bayesian analyses for error rates will be carried out irrespective of the results, but we will report supplementary non-parametric frequentist statistics
 #Under 'ttestPS' function from the 'jmv' package we will set the argument "wilcoxon" to TRUE. 
+
+SW_ER1
+SW_ER2
 ```
 
 #### Merging APP and FCT data for analyses

@@ -1,0 +1,551 @@
+---
+title: "3. Robustness checks"
+author: "Loukia Tzavella"
+date: "29/01/2019"
+output: html_document
+---
+#### Robustness checks
+
+* The pre-registered hypotheses of the study will be tested under different data aggregation and reduction conditions. 
+* Following the sensitivity analyses, we can conclude that the findings of the study are 'robust' if the results are consistent
+  with those of the main pre-registered analyses in the manuscript. 
+* We use the initial 'S' to refer to sensitivity analyses across this script (e.g., "food1_app_S")
+* Outlier removal criteria have been adopted from previous literature, as cited in the manuscript. 
+
+#### Stricter exclusion criterion for error rates
+
+> Participants with error rates (ERs) greater or equal to 0.25 in either food or non-food prime trials will be excluded 
+  from all respective analyses and H1-H4 analyses will be re-run
+
+* Apply exclusion criterion to existing dataframes and rename created files
+
+```{r}
+#Get IDs of participants that will be included in analyses based on ER < 0.25
+ER1_incl_S <- unique(c(unique(nonfood1_app$.id[nonfood1_app$ER<0.25]), unique(food1_app$.id[food1_app$ER<0.25])))
+ER2_incl_S <- unique(c(unique(nonfood2_app$.id[nonfood2_app$ER<0.25]), unique(food2_app$.id[food2_app$ER<0.25])))
+
+#Remove participants from APP dataframes
+nonfood1_app_S <- subset(nonfood1_app, !(ER>=0.25))
+nonfood2_app_S <- subset(nonfood2_app, !(ER>=0.25))
+
+food1_app_S <- subset(food1_app, !(ER>=0.25))
+food2_app_S <- subset(food2_app, !(ER>=0.25))
+
+#Re-run Shapiro-Wilk tests for RTs (H1a, H2a-H2d)
+SW_RT_S1a <- Shapiro_wilk_RTs(food1_app_S, nonfood1_app_S)
+SW_RT_S1b <- Shapiro_wilk_RTs(food2_app_S, nonfood2_app_S)
+
+#Log-transform RTs if normality assumption is violated
+nonfood1_app_S <- log_H1a(data = nonfood1_app_S, sw = SW_RT_S1a)
+food1_app_S <- log_H2(data = food1_app_S, sw = SW_RT_S1a)
+
+nonfood2_app_S <- log_H1a(data = nonfood2_app_S, sw = SW_RT_S1b)
+food2_app_S <- log_H2(data = food2_app_S, sw = SW_RT_S1b)
+
+#In case the APP dataframes have changed due to log-transforms, re-merge FCT and APP outcomes
+FCT1_outcomes_S <- subset(FCT1_outcomes, .id %in% ER1_incl_S)
+FCT2_outcomes_S <- subset(FCT2_outcomes, .id %in% ER2_incl_S)
+
+FCT_app1_S1 <- subset(food1_app_S, select=c(".id", "DRT_h", "DRT_u", "DRT_hml"))
+FCT_app1_S1 <- subset(FCT_app1_S1, .id %in% FCT1_incl)
+
+FCT_app2_S1 <- subset(food2_app_S, select=c(".id", "DRT_h", "DRT_u", "DRT_hml"))
+FCT_app2_S1 <- subset(FCT_app2_S1, .id %in% FCT2_incl)
+
+FCT_full1_S1 <- cbind(FCT_app1_S1, FCT1_outcomes_S)
+FCT_full2_S1 <- cbind(FCT_app2_S1, FCT2_outcomes_S)
+
+FCT_full1_S1 <- FCT_full1_S1[, !duplicated(colnames(FCT_full1_S1))]
+FCT_full2_S1 <- FCT_full2_S1[, !duplicated(colnames(FCT_full2_S1))]
+```
+
+* Re-run analyses for all hypotheses [only Bayesian tests included in this script]
+
+> Laboratory data
+
+```{r}
+#Bayesian paired samples t-tests for H1 [manipulation check]
+H1a.BF1_S1 <- ttestBF(x=nonfood1_app_S$con_RT, y=nonfood1_app_S$inc_RT, paired=TRUE, rscale="medium", nullInterval = c(-Inf,0))
+H1b.BF1_S1 <- ttestBF(x=nonfood1_app_S$con_ER, y=nonfood1_app_S$inc_ER, paired=TRUE, rscale="medium", nullInterval = c(-Inf,0))
+```
+
+```{r}
+H1a.BF1_S1
+```
+
+```{r}
+H1b.BF1_S1
+```
+
+```{r}
+#Bayesian paired samples t-tests for H2 [RT priming effects]
+H2a.BF1_S1 <- ttestBF(x=food1_app_S$con_RT, y=food1_app_S$inc_RT, paired=TRUE, rscale="medium", nullInterval = c(-Inf,0))
+H2b.BF1_S1 <- ttestBF(x=food1_app_S$con_h_RT, y=food1_app_S$inc_h_RT, paired=TRUE, rscale="medium", nullInterval = c(-Inf,0))
+H2c.BF1_S1 <- ttestBF(x=food1_app_S$con_u_RT, y=food1_app_S$inc_u_RT, paired=TRUE, rscale="medium", nullInterval = c(-Inf,0))
+H2d.BF1_S1 <- ttestBF(x=food1_app_S$DRT_h, y=food1_app_S$DRT_u, paired=TRUE, rscale="medium", nullInterval = c(-Inf,0))
+```
+
+```{r}
+H2a.BF1_S1
+```
+
+```{r}
+H2b.BF1_S1
+```
+
+```{r}
+H2c.BF1_S1
+```
+
+```{r}
+H2d.BF1_S1
+```
+
+```{r}
+#Bayesian paired samples t-tests for H3 [ER priming effects]
+H3a.BF1_S1 <- ttestBF(x=food1_app_S$con_ER, y=food1_app_S$inc_ER, paired=TRUE, rscale="medium", nullInterval = c(-Inf,0))
+H3b.BF1_S1 <- ttestBF(x=food1_app_S$con_h_ER, y=food1_app_S$inc_h_ER, paired=TRUE, rscale="medium", nullInterval = c(-Inf,0))
+H3c.BF1_S1 <- ttestBF(x=food1_app_S$con_u_ER, y=food1_app_S$inc_u_ER, paired=TRUE, rscale="medium", nullInterval = c(-Inf,0))
+H3d.BF1_S1 <- ttestBF(x=food1_app_S$DER_h, y=food1_app_S$DER_u, paired=TRUE, rscale="medium", nullInterval = c(-Inf,0))
+```
+
+```{r}
+H3a.BF1_S1
+```
+
+```{r}
+H3b.BF1_S1
+```
+
+```{r}
+H3c.BF1_S1
+```
+
+```{r}
+H3d.BF1_S1
+```
+
+```{r}
+#Bayesian correlation pairs for H4 [food choices]
+H4a.BF1_S1 <- correlationBF(x=FCT_full1_S1$DRT_h, y=FCT_full1_S1$p.mh, rscale = 1, nullInterval = c(0, Inf))
+H4b.BF1_S1 <- correlationBF(x=FCT_full1_S1$DRT_u, y=FCT_full1_S1$p.mu, rscale = 1, nullInterval = c(0, Inf))
+H4c.BF1_S1 <- correlationBF(x=FCT_full1_S1$DRT_hml, y=FCT_full1_S1$p.um, rscale = 1, nullInterval = c(0, Inf))
+```
+
+```{r}
+H4a.BF1_S1
+```
+
+```{r}
+H4b.BF1_S1
+```
+
+```{r}
+H4c.BF1_S1
+```
+
+> Online data
+
+```{r}
+#Bayesian paired samples t-tests for H1 [manipulation check]
+H1a.BF2_S1 <- ttestBF(x=nonfood2_app_S$con_RT, y=nonfood2_app_S$inc_RT, paired=TRUE, rscale="medium", nullInterval = c(-Inf,0))
+H1b.BF2_S1 <- ttestBF(x=nonfood2_app_S$con_ER, y=nonfood2_app_S$inc_ER, paired=TRUE, rscale="medium", nullInterval = c(-Inf,0))
+```
+
+```{r}
+H1a.BF2_S1
+```
+
+```{r}
+H1b.BF2_S1
+```
+
+```{r}
+#Bayesian paired samples t-tests for H2 [RT priming effects]
+H2a.BF2_S1 <- ttestBF(x=food2_app_S$con_RT, y=food2_app_S$inc_RT, paired=TRUE, rscale="medium", nullInterval = c(-Inf,0))
+H2b.BF2_S1 <- ttestBF(x=food2_app_S$con_h_RT, y=food2_app_S$inc_h_RT, paired=TRUE, rscale="medium", nullInterval = c(-Inf,0))
+H2c.BF2_S1 <- ttestBF(x=food2_app_S$con_u_RT, y=food2_app_S$inc_u_RT, paired=TRUE, rscale="medium", nullInterval = c(-Inf,0))
+H2d.BF2_S1 <- ttestBF(x=food2_app_S$DRT_h, y=food2_app_S$DRT_u, paired=TRUE, rscale="medium", nullInterval = c(-Inf,0))
+```
+
+```{r}
+H2a.BF2_S1
+```
+
+```{r}
+H2b.BF2_S1
+```
+
+```{r}
+H2c.BF2_S1
+```
+
+```{r}
+H2d.BF2_S1
+```
+
+```{r}
+#Bayesian paired samples t-tests for H3 [ER priming effects]
+H3a.BF2_S1 <- ttestBF(x=food2_app_S$con_ER, y=food2_app_S$inc_ER, paired=TRUE, rscale="medium", nullInterval = c(-Inf,0))
+H3b.BF2_S1 <- ttestBF(x=food2_app_S$con_h_ER, y=food2_app_S$inc_h_ER, paired=TRUE, rscale="medium", nullInterval = c(-Inf,0))
+H3c.BF2_S1 <- ttestBF(x=food2_app_S$con_u_ER, y=food2_app_S$inc_u_ER, paired=TRUE, rscale="medium", nullInterval = c(-Inf,0))
+H3d.BF2_S1 <- ttestBF(x=food2_app_S$DER_h, y=food2_app_S$DER_u, paired=TRUE, rscale="medium", nullInterval = c(-Inf,0))
+```
+
+```{r}
+H3a.BF2_S1
+```
+
+```{r}
+H3b.BF2_S1
+```
+
+```{r}
+H3c.BF2_S1
+```
+
+```{r}
+H3d.BF2_S1
+```
+
+```{r}
+#Bayesian correlation pairs for H4 [food choices]
+H4a.BF2_S1 <- correlationBF(x=FCT_full2_S$DRT_h, y=FCT_full2_S$p.mh, rscale = 1, nullInterval = c(0, Inf))
+H4b.BF2_S1 <- correlationBF(x=FCT_full2_S$DRT_u, y=FCT_full2_S$p.mu, rscale = 1, nullInterval = c(0, Inf))
+H4c.BF2_S1 <- correlationBF(x=FCT_full2_S$DRT_hml, y=FCT_full2_S$p.um, rscale = 1, nullInterval = c(0, Inf))
+```
+
+```{r}
+H4a.BF2_S1
+```
+
+```{r}
+H4b.BF2_S1
+```
+
+```{r}
+H4c.BF2_S1
+```
+
+#### Mean instead of median RTs at the participant level and outlier exclusion criteria
+
+> Prepare data for 'trimr' functions  that removes outliers based on absolute values and/or SDs
+> The package requires that certain data columns are named exaclty as shown below:
+  participant, condition, rt, accuracy 
+
+* Change structure of datalists with correct RTs only
+```{r}
+#Our data column names are consistent with the trimr package except for 'condition'
+
+#To capture each cell of the design we will use the variable 'trial' 
+#which contains the unique trialcodes and save a copy in a factor format
+
+food1_cor <- lapply(food1_cor, transform, condition = as.factor(trial))
+food2_cor <- lapply(food2_cor, transform, condition = as.factor(trial))
+
+nonfood1_cor <- lapply(nonfood1_cor, transform, condition = as.factor(trial))
+nonfood2_cor <- lapply(nonfood2_cor, transform, condition = as.factor(trial))
+```
+
+* Outlier exclusion 1: Remove RTs <250 ms
+
+```{r}
+food1_RT1 <- lapply(food1_cor, function(x) x<- absoluteRT(x, minRT=250, maxRT = 1500, returnType = "raw", omitErrors = FALSE))
+food2_RT1 <- lapply(food2_cor, function(x) x<- absoluteRT(x, minRT=250, maxRT = 1500, returnType = "raw", omitErrors = FALSE))
+
+nonfood1_RT1 <- lapply(nonfood1_cor, function(x) x<- absoluteRT(x, minRT=250, maxRT = 1500, returnType = "raw", omitErrors = FALSE))
+nonfood2_RT1 <- lapply(nonfood2_cor, function(x) x<- absoluteRT(x, minRT=250, maxRT = 1500, returnType = "raw", omitErrors = FALSE))
+```
+
+* Outlier exclusion 2: Remove RTs >2.5 SDs from the mean of each design cell
+
+```{r}
+#perParticipant would normally be set to TRUE, but for a list of dataframes from individual participants this is not needed.
+food1_RT2 <- lapply(food1_cor, function(x) x<- sdTrim(x, minRT=0, sd=2.5, perCondition = TRUE, perParticipant = FALSE, returnType = "raw", omitErrors = FALSE))  
+food2_RT2 <- lapply(food2_cor, function(x) x<- sdTrim(x, minRT=0, sd=2.5, perCondition = TRUE, perParticipant = FALSE, returnType = "raw", omitErrors = FALSE))  
+
+nonfood1_RT2 <- lapply(nonfood1_cor, function(x) x<- sdTrim(x, minRT=0, sd=2.5, perCondition = TRUE, perParticipant = FALSE, returnType = "raw", omitErrors = FALSE))  
+nonfood2_RT2 <- lapply(nonfood2_cor, function(x) x<- sdTrim(x, minRT=0, sd=2.5, perCondition = TRUE, perParticipant = FALSE, returnType = "raw", omitErrors = FALSE))  
+```
+
+* Create dataframes with mean instead of median RTs for analyses
+
+```{r}
+#Exclude participants who had mean error rates > 0.4
+nonfood1_RT1 <- nonfood1_RT1[sapply(nonfood1_RT1, function(x) any(x$subject %in% ER1_incl))]
+nonfood2_RT1 <- nonfood2_RT1[sapply(nonfood2_RT1, function(x) any(x$subject %in% ER1_incl))]
+
+nonfood1_RT2 <- nonfood1_RT2[sapply(nonfood1_RT2, function(x) any(x$subject %in% ER1_incl))]
+nonfood2_RT2 <- nonfood2_RT2[sapply(nonfood2_RT2, function(x) any(x$subject %in% ER1_incl))]
+
+food1_RT1 <- food1_RT1[sapply(food1_RT1, function(x) any(x$subject %in% ER1_incl))]
+food2_RT1 <- food2_RT1[sapply(food2_RT1, function(x) any(x$subject %in% ER1_incl))]
+
+food1_RT2 <- food1_RT2[sapply(food1_RT2, function(x) any(x$subject %in% ER1_incl))]
+food2_RT2 <- food2_RT2[sapply(food2_RT2, function(x) any(x$subject %in% ER1_incl))]
+
+#Mean RTs of correct trials from non-food trials
+nonfood1_RT1 <- ldply(nonfood1_RT1, NF_means)
+nonfood2_RT1 <- ldply(nonfood2_RT1, NF_means)
+
+nonfood1_RT2 <- ldply(nonfood1_RT2, NF_means)
+nonfood2_RT2 <- ldply(nonfood2_RT2, NF_means)
+
+#Mean RTs of correct trials from food trials
+food1_RT1 <- ldply(food1_RT1, F_means)
+food2_RT1 <- ldply(food2_RT1, F_means)
+
+food1_RT2 <- ldply(food1_RT2, F_means)
+food2_RT2 <- ldply(food2_RT2, F_means)
+```
+
+*Check new datasets for violation of the normality assumption 
+```{r}
+#Re-run Shapiro-Wilk tests for RTs (H1a, H2a-H2d)
+SW_RT_S2a <- Shapiro_wilk_RTs(food1_RT1, nonfood1_RT1)
+SW_RT_S2b <- Shapiro_wilk_RTs(food2_RT1, nonfood2_RT1)
+
+SW_RT_S3a <- Shapiro_wilk_RTs(food1_RT2, nonfood1_RT2)
+SW_RT_S3b <- Shapiro_wilk_RTs(food2_RT2, nonfood2_RT2)
+
+#Log-transform RTs if normality assumption is violated
+food1_RT1 <- log_H2(data = food1_RT1, sw = SW_RT_S2a)
+food2_RT1 <- log_H2(data = food2_RT1, sw = SW_RT_S2b)
+
+food1_RT2 <- log_H2(data = food1_RT2, sw = SW_RT_S3a)
+food2_RT2 <- log_H2(data = food2_RT2, sw = SW_RT_S3b)
+
+nonfood1_RT1 <- log_H1a(data = nonfood1_RT1, sw = SW_RT_S2a)
+nonfood2_RT1 <- log_H1a(data = nonfood2_RT1, sw = SW_RT_S2b)
+
+nonfood1_RT2 <- log_H1a(data = nonfood1_RT2, sw = SW_RT_S3a)
+nonfood2_RT2 <- log_H1a(data = nonfood2_RT2, sw = SW_RT_S3b)
+```
+
+* Merge new datasets with FCT outcomes
+
+```{r}
+#Re-apply exclusions for missed responses to APP data
+#Note. These are not affected by, or related to, any RT removal criteria
+FCT_app1_S2 <- subset(food1_RT1, select=c(".id", "DRT_h", "DRT_u", "DRT_hml"))
+FCT_app1_S2 <- subset(FCT_app1_S2, .id %in% FCT1_incl)
+
+FCT_app2_S2 <- subset(food2_RT1, select=c(".id", "DRT_h", "DRT_u", "DRT_hml"))
+FCT_app2_S2 <- subset(FCT_app2_S2, .id %in% FCT2_incl)
+
+FCT_app1_S3 <- subset(food1_RT2, select=c(".id", "DRT_h", "DRT_u", "DRT_hml"))
+FCT_app1_S3 <- subset(FCT_app1_S3, .id %in% FCT1_incl)
+
+FCT_app2_S3 <- subset(food2_RT2, select=c(".id", "DRT_h", "DRT_u", "DRT_hml"))
+FCT_app2_S3 <- subset(FCT_app2_S3, .id %in% FCT2_incl)
+
+#Merge APP and FCT data
+FCT_full1_S2 <- cbind(FCT_app1_S2, FCT1_outcomes)
+FCT_full2_S2 <- cbind(FCT_app2_S2, FCT2_outcomes)
+
+FCT_full1_S3 <- cbind(FCT_app1_S3, FCT1_outcomes)
+FCT_full2_S3 <- cbind(FCT_app2_S3, FCT2_outcomes)
+
+FCT_full1_S2 <- FCT_full1_S2[, !duplicated(colnames(FCT_full1_S2))]
+FCT_full2_S2 <- FCT_full2_S2[, !duplicated(colnames(FCT_full2_S2))]
+
+FCT_full1_S3 <- FCT_full1_S3[, !duplicated(colnames(FCT_full1_S2))]
+FCT_full2_S3 <- FCT_full2_S3[, !duplicated(colnames(FCT_full2_S2))]
+```
+
+* Re-run analyses for RT-related hypotheses
+
+> Laboratory data
+
+```{r}
+#Bayesian paired samples t-test for H1a
+H1a.BF1_S2 <- ttestBF(x=nonfood1_RT1$con_RT, y=nonfood1_RT1$inc_RT, paired=TRUE, rscale="medium", nullInterval = c(-Inf,0))
+H1a.BF1_S3 <- ttestBF(x=nonfood1_RT2$con_RT, y=nonfood1_RT2$inc_RT, paired=TRUE, rscale="medium", nullInterval = c(-Inf,0))
+```
+
+```{r}
+H1a.BF1_S2
+```
+
+```{r}
+H1a.BF1_S3
+```
+
+```{r}
+#Bayesian paired samples t-tests for H2 [RT priming effects]
+H2a.BF1_S2 <- ttestBF(x=food1_RT1$con_RT, y=food1_RT1$inc_RT, paired=TRUE, rscale="medium", nullInterval = c(-Inf,0))
+H2b.BF1_S2 <- ttestBF(x=food1_RT1$con_h_RT, y=food1_RT1$inc_h_RT, paired=TRUE, rscale="medium", nullInterval = c(-Inf,0))
+H2c.BF1_S2 <- ttestBF(x=food1_RT1$con_u_RT, y=food1_RT1$inc_u_RT, paired=TRUE, rscale="medium", nullInterval = c(-Inf,0))
+H2d.BF1_S2 <- ttestBF(x=food1_RT1$DRT_h, y=food1_RT1$DRT_u, paired=TRUE, rscale="medium", nullInterval = c(-Inf,0))
+
+H2a.BF1_S3 <- ttestBF(x=food1_RT2$con_RT, y=food1_RT2$inc_RT, paired=TRUE, rscale="medium", nullInterval = c(-Inf,0))
+H2b.BF1_S3 <- ttestBF(x=food1_RT2$con_h_RT, y=food1_RT2$inc_h_RT, paired=TRUE, rscale="medium", nullInterval = c(-Inf,0))
+H2c.BF1_S3 <- ttestBF(x=food1_RT2$con_u_RT, y=food1_RT2$inc_u_RT, paired=TRUE, rscale="medium", nullInterval = c(-Inf,0))
+H2d.BF1_S3 <- ttestBF(x=food1_RT2$DRT_h, y=food1_RT2$DRT_u, paired=TRUE, rscale="medium", nullInterval = c(-Inf,0))
+```
+
+```{r}
+H2a.BF1_S2
+```
+
+```{r}
+H2b.BF1_S2
+```
+
+```{r}
+H2c.BF1_S2
+```
+
+```{r}
+H2d.BF1_S2
+```
+
+```{r}
+H2a.BF1_S3
+```
+
+```{r}
+H2b.BF1_S3
+```
+
+```{r}
+H2c.BF1_S3
+```
+
+```{r}
+H2d.BF1_S3
+```
+
+```{r}
+#Bayesian correlation pairs for H4 [food choices]
+H4a.BF1_S2 <- correlationBF(x=FCT_full1_S2$DRT_h, y=FCT_full1_S2$p.mh, rscale = 1, nullInterval = c(0, Inf))
+H4b.BF1_S2 <- correlationBF(x=FCT_full1_S2$DRT_u, y=FCT_full1_S2$p.mu, rscale = 1, nullInterval = c(0, Inf))
+H4c.BF1_S2 <- correlationBF(x=FCT_full1_S2$DRT_hml, y=FCT_full1_S2$p.um, rscale = 1, nullInterval = c(0, Inf))
+
+H4a.BF1_S3 <- correlationBF(x=FCT_full1_S3$DRT_h, y=FCT_full1_S3$p.mh, rscale = 1, nullInterval = c(0, Inf))
+H4b.BF1_S3 <- correlationBF(x=FCT_full1_S3$DRT_u, y=FCT_full1_S3$p.mu, rscale = 1, nullInterval = c(0, Inf))
+H4c.BF1_S3 <- correlationBF(x=FCT_full1_S3$DRT_hml, y=FCT_full1_S3$p.um, rscale = 1, nullInterval = c(0, Inf))
+```
+
+```{r}
+H4a.BF2_S2
+```
+
+```{r}
+H4b.BF2_S2
+```
+
+```{r}
+H4c.BF2_S2
+```
+
+```{r}
+H4a.BF2_S3
+```
+
+```{r}
+H4b.BF2_S3
+```
+
+```{r}
+H4c.BF2_S3
+```
+
+> Online data
+
+```{r}
+#Bayesian paired samples t-test for H1a
+H1a.BF2_S2 <- ttestBF(x=nonfood2_RT1$con_RT, y=nonfood2_RT1$inc_RT, paired=TRUE, rscale="medium", nullInterval = c(-Inf,0))
+H1a.BF2_S3 <- ttestBF(x=nonfood2_RT2$con_RT, y=nonfood2_RT2$inc_RT, paired=TRUE, rscale="medium", nullInterval = c(-Inf,0))
+```
+
+```{r}
+H1a.BF2_S2
+```
+
+```{r}
+H1a.BF2_S3
+```
+
+```{r}
+#Bayesian paired samples t-tests for H2 [RT priming effects]
+H2a.BF2_S2 <- ttestBF(x=food2_RT1$con_RT, y=food2_RT1$inc_RT, paired=TRUE, rscale="medium", nullInterval = c(-Inf,0))
+H2b.BF2_S2 <- ttestBF(x=food2_RT1$con_h_RT, y=food2_RT1$inc_h_RT, paired=TRUE, rscale="medium", nullInterval = c(-Inf,0))
+H2c.BF2_S2 <- ttestBF(x=food2_RT1$con_u_RT, y=food2_RT1$inc_u_RT, paired=TRUE, rscale="medium", nullInterval = c(-Inf,0))
+H2d.BF2_S2 <- ttestBF(x=food2_RT1$DRT_h, y=food2_RT1$DRT_u, paired=TRUE, rscale="medium", nullInterval = c(-Inf,0))
+
+H2a.BF2_S3 <- ttestBF(x=food2_RT2$con_RT, y=food2_RT2$inc_RT, paired=TRUE, rscale="medium", nullInterval = c(-Inf,0))
+H2b.BF2_S3 <- ttestBF(x=food2_RT2$con_h_RT, y=food2_RT2$inc_h_RT, paired=TRUE, rscale="medium", nullInterval = c(-Inf,0))
+H2c.BF2_S3 <- ttestBF(x=food2_RT2$con_u_RT, y=food2_RT2$inc_u_RT, paired=TRUE, rscale="medium", nullInterval = c(-Inf,0))
+H2d.BF2_S3 <- ttestBF(x=food2_RT2$DRT_h, y=food2_RT2$DRT_u, paired=TRUE, rscale="medium", nullInterval = c(-Inf,0))
+```
+
+```{r}
+H2a.BF2_S2
+```
+
+```{r}
+H2b.BF2_S2
+```
+
+```{r}
+H2c.BF2_S2
+```
+
+```{r}
+H2d.BF2_S2
+```
+
+```{r}
+H2a.BF2_S3
+```
+
+```{r}
+H2b.BF2_S3
+```
+
+```{r}
+H2c.BF2_S3
+```
+
+```{r}
+H2d.BF2_S3
+```
+
+```{r}
+#Bayesian correlation pairs for H4 [food choices]
+H4a.BF2_S2 <- correlationBF(x=FCT_full2_S2$DRT_h, y=FCT_full2_S2$p.mh, rscale = 1, nullInterval = c(0, Inf))
+H4b.BF2_S2 <- correlationBF(x=FCT_full2_S2$DRT_u, y=FCT_full2_S2$p.mu, rscale = 1, nullInterval = c(0, Inf))
+H4c.BF2_S2 <- correlationBF(x=FCT_full2_S2$DRT_hml, y=FCT_full2_S2$p.um, rscale = 1, nullInterval = c(0, Inf))
+
+H4a.BF2_S3 <- correlationBF(x=FCT_full2_S3$DRT_h, y=FCT_full2_S3$p.mh, rscale = 1, nullInterval = c(0, Inf))
+H4b.BF2_S3 <- correlationBF(x=FCT_full2_S3$DRT_u, y=FCT_full2_S3$p.mu, rscale = 1, nullInterval = c(0, Inf))
+H4c.BF2_S3 <- correlationBF(x=FCT_full2_S3$DRT_hml, y=FCT_full2_S3$p.um, rscale = 1, nullInterval = c(0, Inf))
+```
+
+```{r}
+H4a.BF2_S2
+```
+
+```{r}
+H4b.BF2_S2
+```
+
+```{r}
+H4c.BF2_S2
+```
+
+```{r}
+H4a.BF2_S3
+```
+
+```{r}
+H4b.BF2_S3
+```
+
+```{r}
+H4c.BF2_S3
+```
+
+> Please note that frequentist supplementary statistics have not been added to this script for robustness checks and supplementary scripts will be added at a     later stage. Conclusions based on the findings can only be drawn from Bayesian statistics, as pre-registered in the manuscript. 
+  The same methods and functions from the script '2. Pre-registered analyses.Rmd' will apply (e.g., ttestPS for t-tests and Cohen's dav will be reported for      each test under H1-H3).
