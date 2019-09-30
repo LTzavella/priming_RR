@@ -1,0 +1,554 @@
+---
+title: "Reporting_stats"
+author: "Loukia Tzavella"
+date: "19/05/2019"
+output: html_document
+---
+
+## Select key measures for reporting in main text (confirmatory hypotheses)
+
+```{r}
+app_lab <- subset(food1_app, select=c(1:6, 39:40, 21:26, 41:42))
+app_lab <-cbind(app_lab, subset(nonfood1_app, select=c(2:3, 5:6)))
+
+app_onl <- subset(food2_app, select=c(1:6, 39:40, 21:26, 41:42))
+app_onl <-cbind(app_onl, subset(nonfood2_app, select=c(2:3, 5:6)))
+
+rename_app <- c("RTcon_F", "RTinc_F", "RTcon_H", "RTinc_H", "RTcon_U", "RTinc_U","DRT_H", "DRT_U",
+                "ERcon_F", "ERinc_F", "ERcon_H", "ERinc_H", "ERcon_U", "ERinc_U", "DER_H"," DER_U",
+                "RTcon_NF", "RTinc_NF", "ERcon_NF", "ERinc_NF")
+
+names(app_lab) <- rename_app
+names(app_onl) <- rename_app
+
+fct_lab <- subset(FCT_full1, select=c(1,4:7))
+fct_onl <- subset(FCT_full2, select=c(1,4:7))
+
+
+write.csv(app_lab, here("reporting", "app_lab.csv"), row.names = FALSE)
+write.csv(app_onl, here("reporting", "app_onl.csv"), row.names = FALSE)
+
+write.csv(fct_lab, here("reporting", "fct_lab.csv"), row.names = FALSE)
+write.csv(fct_onl, here("reporting", "fct_onl.csv"), row.names = FALSE)
+```
+
+
+## Extract all relevant variables and create mega summary data files for all participants
+
+### Make sure excluded participants are not in the data - pre-processing needs to be run first
+```{r}
+data1 <- data1[sapply(data1, function(x) any(!x$subject %in% ER1_excl))]
+data2 <- data2[sapply(data2, function(x) any(!x$subject %in% ER2_excl))]
+```
+
+* Remove participants that did not complete these parts of the study (questionnaire/follow-up survey)
+```{r}
+incomplete <- ldply(data2, function(x) paste(x$blockcode[nrow(x)]))
+incomplete <- unique(incomplete$.id[incomplete$V1!="end"])
+
+data2 <- data2[sapply(data2, function(x) any(!x$subject %in% incomplete))]
+```
+
+
+### Create matrix and set colnames
+```{r}
+mega1 <- data.frame(matrix(nrow=length(data1), ncol=65))
+mega2 <- data.frame(matrix(nrow=length(data2), ncol=65)) 
+
+#Add column names here
+mega_cols <- c("id", "BMI", "FCQTr_intentions", "FCQTr_control", "FCQTr_preoccupation", "FCQTr_emotions", "FCQTr_trigger", "FCQTr_total",
+               "Last_meal", "Hunger", "Diet", "IMC", "RT_aware1", "RT_aware2", "RT_aware3", "RT_aware4", "RT_aware", "RT_aware6", "Perception",
+               "Congr_aware1", "Congr_aware2", "Congr_aware3", "Congr_aware4", "Congr_aware5", "Ambivalence", "AC", 
+               "Strategy1", "Strategy2", "Strategy3", "Strategy4", "Interrupt",
+               "Health_HML", "Health_HLL", "Health_UML", "Health_ULL", "Valence_HML", "Valence_HLL", "Valence_UML", "Valence_ULL",
+               "Craving_HML", "Craving_HLL", "Craving_UML", "Craving_ULL", "Arousal_HML", "Arousal_HLL", "Arousal_UML", "Arousal_ULL",
+               "Valence_NF", "Arousal_NF", "Valence_PT", "Valence_NT", "Arousal_PT", "Arousal_NT",
+               "DRT_F", "DRT_H", "DRT_U", "DRT_UML", "DRT_HML", "DRT_ML", "DRT_NF", 
+               "Liking_UML", "Liking_ULL", "Liking_HML", "Liking_HLL", "Liking_NF",
+               "p.MH", "p.MU", "p.UM", "RT.MH", "RT.MU", "RT_UM")
+
+names(mega1) <- mega_cols
+names(mega2) <- mega_cols
+```
+
+
+### Add variables from individual data files [laboratory data]
+```{r}
+#Trait/state variables & FCQ-Tr scores - subscales and total
+mega1[1] <- ldply(data1, function(x) paste(x$subject[1]), .id = NULL)
+mega1[2] <- ldply(data1, function(x) paste(x$BMI[1]), .id = NULL)
+mega1[3] <- ldply(data1, function(x) paste(x$values.intentions[nrow(x)]), .id = NULL)
+mega1[4] <- ldply(data1, function(x) paste(x$values.control[nrow(x)]), .id = NULL)
+mega1[5] <- ldply(data1, function(x) paste(x$values.preoccupation[nrow(x)]), .id = NULL)
+mega1[6] <- ldply(data1, function(x) paste(x$values.emotions[nrow(x)]), .id = NULL)
+mega1[7] <- ldply(data1, function(x) paste(x$values.trigger[nrow(x)]), .id = NULL)
+mega1[8] <- ldply(data1, function(x) paste(x$values.fcq_total[nrow(x)]), .id = NULL)
+mega1[9] <- ldply(data1, function(x) paste(x$response[x$trialcode=="lastmeal"]), .id = NULL)
+mega1[10] <- ldply(data1, function(x) paste(x$response[x$trialcode=="hunger"]), .id = NULL)
+
+# Recode diet responses to accomodate 'other' open-ended inputs
+mega1[11] <- ldply(data1, function(x) if (x$response[x$trialcode=="diets"]=="6") {paste(x$response[x$trialcode=="dietsother"])} else {paste(x$response[x$trialcode=="diets"])}, .id = NULL)
+mega1$Diet <- ifelse(mega1$Diet=="1", "vegetarian", ifelse(mega1$Diet=="2", "vegan", ifelse(mega1$Diet=="3", "fruitarian", ifelse(mega1$Diet=="4", "pescetarian", ifelse(mega1$Diet=="5", "none", mega1$Diet)))))
+```
+
+```{r}
+# Follow-up study survey measures 
+mega1[12] <- ldply(data1, function(x) paste(x$response[x$trialcode=="f_q1"]), .id = NULL)
+mega1[13] <- ldply(data1, function(x) paste(x$response[x$trialcode=="f_q2option1"]), .id = NULL)
+mega1[14] <- ldply(data1, function(x) paste(x$response[x$trialcode=="f_q2option2"]), .id = NULL)
+mega1[15] <- ldply(data1, function(x) paste(x$response[x$trialcode=="f_q2option3"]), .id = NULL)
+mega1[16] <- ldply(data1, function(x) paste(x$response[x$trialcode=="f_q2option4"]), .id = NULL)
+mega1[17] <- ldply(data1, function(x) paste(x$response[x$trialcode=="f_q2option5"]), .id = NULL)
+mega1[18] <- ldply(data1, function(x) paste(x$response[x$trialcode=="f_q2option6"]), .id = NULL)
+mega1[19] <- ldply(data1, function(x) paste(x$response[x$trialcode=="f_q3"]), .id = NULL)
+mega1[20] <- ldply(data1, function(x) paste(x$response[x$trialcode=="f_q4option1"]), .id = NULL)
+mega1[21] <- ldply(data1, function(x) paste(x$response[x$trialcode=="f_q4option2"]), .id = NULL)
+mega1[22] <- ldply(data1, function(x) paste(x$response[x$trialcode=="f_q4option3"]), .id = NULL)
+mega1[23] <- ldply(data1, function(x) paste(x$response[x$trialcode=="f_q4option4"]), .id = NULL)
+mega1[24] <- ldply(data1, function(x) paste(x$response[x$trialcode=="f_q4option5"]), .id = NULL)
+mega1[25] <- ldply(data1, function(x) if (x$response[x$trialcode=="f_q5"]=="No") {paste(x$response[x$trialcode=="f_q5other"])} else {paste(x$response[x$trialcode=="f_q5"])}, .id = NULL)
+mega1[26] <- ldply(data1, function(x) paste(x$response[x$trialcode=="f_q6"]), .id = NULL)
+
+mega1[27] <- ldply(data1, function(x) paste(x$response[x$trialcode=="f_q7option1"]), .id = NULL)
+mega1[28] <- ldply(data1, function(x) paste(x$response[x$trialcode=="f_q7option2"]), .id = NULL)
+mega1[29] <- ldply(data1, function(x) paste(x$response[x$trialcode=="f_q7option3"]), .id = NULL)
+mega1[30] <- ldply(data1, function(x) if (x$response[x$trialcode=="f_q7option4"]=="4") {paste("Other", x$response[x$trialcode=="f_q7other"])} else {paste("Other")}, .id = NULL)
+
+mega1[31] <- ldply(data1, function(x) if (x$response[x$trialcode=="f_q8"]=="6") {paste(x$response[x$trialcode=="f_q8other"])} else {paste(x$response[x$trialcode=="f_q8"])}, .id = NULL)
+
+#We need to convert these values into 1s and 0s
+mega1[13] <- as.numeric(ifelse(mega1[13]>0, "1", "0"))
+mega1[14] <- as.numeric(ifelse(mega1[14]>0, "1", "0"))
+mega1[15] <- as.numeric(ifelse(mega1[15]>0, "1", "0"))
+mega1[16] <- as.numeric(ifelse(mega1[16]>0, "1", "0"))
+mega1[17] <- as.numeric(ifelse(mega1[17]>0, "1", "0"))
+mega1[18] <- as.numeric(ifelse(mega1[18]>0, "1", "0"))
+
+mega1[20] <- as.numeric(ifelse(mega1[20]>0, "1", "0"))
+mega1[21] <- as.numeric(ifelse(mega1[21]>0, "1", "0"))
+mega1[22] <- as.numeric(ifelse(mega1[22]>0, "1", "0"))
+mega1[23] <- as.numeric(ifelse(mega1[23]>0, "1", "0"))
+mega1[24] <- as.numeric(ifelse(mega1[24]>0, "1", "0"))
+
+mega1[27] <- as.numeric(ifelse(mega1[27]>0, "1", "0"))
+mega1[28] <- as.numeric(ifelse(mega1[28]>0, "1", "0"))
+mega1[29] <- as.numeric(ifelse(mega1[29]>0, "1", "0"))
+
+# For the IMC and attention check we only focused on accuracy to the rest of the responses were simply coded as 0s - incorrect
+mega1[12] <- as.numeric(ifelse(mega1[12]==4, "1", "0"))
+mega1[26] <- as.numeric(ifelse(mega1[26]==1, "1", "0"))
+```
+
+>  *Questions from follow-up survey and coding of responses*
+
+> Q1. What was this study about? [Coded as IMC]
+- Food adverts
+- Body weight
+- Healthy diets
+- None of the above (a value of 4 indicates participants passed the instructional manipulation check, or IMC)
+
+> Q2. Did you notice any differences about your responses on separate occasions? Please select all that apply. [Coded as 'RT_aware']
+RT_aware1: Faster to categorise positive words 
+RT_aware2: Faster to categorise negative words 
+RT_aware3: Faster to categorise words towards the end of the task 
+RT_aware4: Slower to categorise positive words 
+RT_aware5: Slower to categorise negative words 
+RT_aware6: No differences observed
+> Q3. How frequently did you see the content of the picture that was presented before the word? 1=Never; 2=Very infrequently; 3=Somewhat infrequently; 4=Occasionally; 5=Somewhat frequently; 6=Very frequently; 7=Always
+
+
+> Q4. Please indicate whether you believe that the picture content influenced your responses in any way by selecting all statements below that apply to your performance in the word task.
+[Coded as Congr_aware]
+Congr_aware1: Faster to categorise positive words when the picture was positive (i.e., picture you liked the most)
+Congr_aware2: Faster to categorise negative words when the picture was negative (i.e., picture you liked the least)
+Congr_aware3: Slower to categorise positive words when the picture was negative
+Congr_aware4: Slower to categorise negative words when the picture was positive
+Congr_aware5: Responses were not influenced by the content of the pictures
+
+> Q5. Did you find all the words in the task clearly positive or negative? Certain words may be considered unclear or ambivalent. These may be words that have both positive and negative meaning for you depending on the context. If not, please type in any words in the text box.[Coded as Ambivalence]
+
+> Q6. Obama was the first American president. 7-point likert scale (1=strongly disagree to 7=strongly agree) [Coded as AC] -This was an attention check- a correct response is 1 (i.e., strongly disagree)
+
+> Q7. Did you purposefully use any kind of strategy to make your responses faster and/or more accurate? Please select all that apply.[Coded as Strategy]
+Strategy1: Slowed down to be more accurate
+Strategy2: Responded fast most of the time and ignored any errors
+Strategy3: No strategy used
+Strategy4: Other (open-ended)
+
+> Q8. How many times were you interrupted during the word task (e.g., by the phone ringing or by somebody trying to talk to you)? [Coded as Interrupt]
+- 0
+- 1
+- 2
+- 3
+- 4
+- Other: ___ [numerical input up to two digits]
+
+### Add mean ratings for food primes
+
+```{r}
+mega1[32] <- ldply(data1, function(x) mean(as.numeric(x$response[x$trialcode=="HML_r_rh_p"])), .id=NULL)
+mega1[33] <- ldply(data1, function(x) mean(as.numeric(x$response[x$trialcode=="HLL_r_rh_p"])), .id=NULL)
+mega1[34] <- ldply(data1, function(x) mean(as.numeric(x$response[x$trialcode=="UML_r_rh_p"])), .id=NULL)
+mega1[35] <- ldply(data1, function(x) mean(as.numeric(x$response[x$trialcode=="ULL_r_rh_p"])), .id=NULL)
+
+mega1[36] <- ldply(data1, function(x) mean(as.numeric(x$response[x$trialcode=="HML_r_rv_p"])), .id=NULL)
+mega1[37] <- ldply(data1, function(x) mean(as.numeric(x$response[x$trialcode=="HLL_r_rv_p"])), .id=NULL)
+mega1[38] <- ldply(data1, function(x) mean(as.numeric(x$response[x$trialcode=="UML_r_rv_p"])), .id=NULL)
+mega1[39] <- ldply(data1, function(x) mean(as.numeric(x$response[x$trialcode=="ULL_r_rv_p"])), .id=NULL)
+
+mega1[40] <- ldply(data1, function(x) mean(as.numeric(x$response[x$trialcode=="HML_r_fc"])), .id=NULL)
+mega1[41] <- ldply(data1, function(x) mean(as.numeric(x$response[x$trialcode=="HLL_r_fc"])), .id=NULL)
+mega1[42] <- ldply(data1, function(x) mean(as.numeric(x$response[x$trialcode=="UML_r_fc"])), .id=NULL)
+mega1[43] <- ldply(data1, function(x) mean(as.numeric(x$response[x$trialcode=="ULL_r_fc"])), .id=NULL)
+
+mega1[44] <- ldply(data1, function(x) mean(as.numeric(x$response[x$trialcode=="HML_r_ra_p"])), .id=NULL)
+mega1[45] <- ldply(data1, function(x) mean(as.numeric(x$response[x$trialcode=="HLL_r_ra_p"])), .id=NULL)
+mega1[46] <- ldply(data1, function(x) mean(as.numeric(x$response[x$trialcode=="UML_r_ra_p"])), .id=NULL)
+mega1[47] <- ldply(data1, function(x) mean(as.numeric(x$response[x$trialcode=="ULL_r_ra_p"])), .id=NULL)
+```
+
+ >  "Health_HML", "Health_HLL", "Health_UML", "Health_ULL", "Valence_HML", "Valence_HLL", "Valence_UML", "Valence_ULL"
+    "Craving_HML", "Craving_HLL", "Craving_UML", "Craving_ULL", "Arousal_HML", "Arousal_HLL", "Arousal_UML", "Arousal_ULL")
+    UML: unhealthy most liked, ULL: unhealthy least liked, HML: healthy most liked, HLL: healthy least liked
+    Valence, arousal, frequency of cravings, and perceived healthiness.
+
+### Add mean ratings for non-food primes
+    
+    ```{r}
+mega1[48] <- ldply(data1, function(x) mean(as.numeric(x$response[x$trialcode=="c_r_rv_p"])), .id=NULL)
+mega1[49] <- ldply(data1, function(x) mean(as.numeric(x$response[x$trialcode=="c_r_ra_p"])), .id=NULL)
+```
+> "Valence_NF", "Arousal_NF"- Non-food primes
+
+### Add mean ratings for targets
+
+```{r}
+mega1[50] <- ldply(data1, function(x) mean(as.numeric(x$response[x$trialcode=="pos_t_ra_t"])), .id=NULL)
+mega1[51] <- ldply(data1, function(x) mean(as.numeric(x$response[x$trialcode=="neg_t_ra_t"])), .id=NULL)
+mega1[52] <- ldply(data1, function(x) mean(as.numeric(x$response[x$trialcode=="pos_t_rv_t"])), .id=NULL)
+mega1[53] <- ldply(data1, function(x) mean(as.numeric(x$response[x$trialcode=="neg_t_rv_t"])), .id=NULL)
+```
+> "Valence_PT", "Valence_NT", "Arousal_PT", "Arousal_NT- PT: positive targets, NT: negative targets
+
+
+### Add variables from individual data files [online data]
+
+```{r}
+#Trait/state variables & FCQ-Tr scores - subscales and total
+mega2[1] <- ldply(data2, function(x) paste(x$subject[1]), .id = NULL)
+mega2[2] <- ldply(data2, function(x) paste(x$BMI[1]), .id = NULL)
+mega2[3] <- ldply(data2, function(x) paste(x$values.intentions[nrow(x)]), .id = NULL)
+mega2[4] <- ldply(data2, function(x) paste(x$values.control[nrow(x)]), .id = NULL)
+mega2[5] <- ldply(data2, function(x) paste(x$values.preoccupation[nrow(x)]), .id = NULL)
+mega2[6] <- ldply(data2, function(x) paste(x$values.emotions[nrow(x)]), .id = NULL)
+mega2[7] <- ldply(data2, function(x) paste(x$values.trigger[nrow(x)]), .id = NULL)
+mega2[8] <- ldply(data2, function(x) paste(x$values.fcq_total[nrow(x)]), .id = NULL)
+mega2[9] <- ldply(data2, function(x) paste(x$response[x$trialcode=="lastmeal"]), .id = NULL)
+mega2[10] <- ldply(data2, function(x) paste(x$response[x$trialcode=="hunger"]), .id = NULL)
+
+# Recode diet responses to accomodate 'other' open-ended inputs
+mega2[11] <- ldply(data2, function(x) if (x$response[x$trialcode=="diets"]=="6") {paste(x$response[x$trialcode=="dietsother"])} else {paste(x$response[x$trialcode=="diets"])}, .id = NULL)
+mega2$Diet <- ifelse(mega2$Diet=="1", "vegetarian", ifelse(mega2$Diet=="2", "vegan", ifelse(mega2$Diet=="3", "fruitarian", ifelse(mega2$Diet=="4", "pescetarian", ifelse(mega2$Diet=="5", "none", mega2$Diet)))))
+```
+
+```{r}
+# Follow-up study survey measures 
+mega2[12] <- ldply(data2, function(x) paste(x$response[x$trialcode=="f_q1"]), .id = NULL)
+mega2[13] <- ldply(data2, function(x) paste(x$response[x$trialcode=="f_q2option1"]), .id = NULL)
+mega2[14] <- ldply(data2, function(x) paste(x$response[x$trialcode=="f_q2option2"]), .id = NULL)
+mega2[15] <- ldply(data2, function(x) paste(x$response[x$trialcode=="f_q2option3"]), .id = NULL)
+mega2[16] <- ldply(data2, function(x) paste(x$response[x$trialcode=="f_q2option4"]), .id = NULL)
+mega2[17] <- ldply(data2, function(x) paste(x$response[x$trialcode=="f_q2option5"]), .id = NULL)
+mega2[18] <- ldply(data2, function(x) paste(x$response[x$trialcode=="f_q2option6"]), .id = NULL)
+mega2[19] <- ldply(data2, function(x) paste(x$response[x$trialcode=="f_q3"]), .id = NULL)
+mega2[20] <- ldply(data2, function(x) paste(x$response[x$trialcode=="f_q4option1"]), .id = NULL)
+mega2[21] <- ldply(data2, function(x) paste(x$response[x$trialcode=="f_q4option2"]), .id = NULL)
+mega2[22] <- ldply(data2, function(x) paste(x$response[x$trialcode=="f_q4option3"]), .id = NULL)
+mega2[23] <- ldply(data2, function(x) paste(x$response[x$trialcode=="f_q4option4"]), .id = NULL)
+mega2[24] <- ldply(data2, function(x) paste(x$response[x$trialcode=="f_q4option5"]), .id = NULL)
+mega2[25] <- ldply(data2, function(x) if (x$response[x$trialcode=="f_q5"]=="No") {paste(x$response[x$trialcode=="f_q5other"])} else {paste(x$response[x$trialcode=="f_q5"])}, .id = NULL)
+mega2[26] <- ldply(data2, function(x) paste(x$response[x$trialcode=="f_q6"]), .id = NULL)
+
+mega2[27] <- ldply(data2, function(x) paste(x$response[x$trialcode=="f_q7option1"]), .id = NULL)
+mega2[28] <- ldply(data2, function(x) paste(x$response[x$trialcode=="f_q7option2"]), .id = NULL)
+mega2[29] <- ldply(data2, function(x) paste(x$response[x$trialcode=="f_q7option3"]), .id = NULL)
+mega2[30] <- ldply(data2, function(x) if (x$response[x$trialcode=="f_q7option4"]=="4") {paste("Other", x$response[x$trialcode=="f_q7other"])} else {paste("Other")}, .id = NULL)
+
+mega2[31] <- ldply(data2, function(x) if (x$response[x$trialcode=="f_q8"]=="6") {paste(x$response[x$trialcode=="f_q8other"])} else {paste(x$response[x$trialcode=="f_q8"])}, .id = NULL)
+
+#We need to convert these values into 1s and 0s
+mega2[13] <- as.numeric(ifelse(mega2[13]>0, "1", "0"))
+mega2[14] <- as.numeric(ifelse(mega2[14]>0, "1", "0"))
+mega2[15] <- as.numeric(ifelse(mega2[15]>0, "1", "0"))
+mega2[16] <- as.numeric(ifelse(mega2[16]>0, "1", "0"))
+mega2[17] <- as.numeric(ifelse(mega2[17]>0, "1", "0"))
+mega2[18] <- as.numeric(ifelse(mega2[18]>0, "1", "0"))
+
+mega2[20] <- as.numeric(ifelse(mega2[20]>0, "1", "0"))
+mega2[21] <- as.numeric(ifelse(mega2[21]>0, "1", "0"))
+mega2[22] <- as.numeric(ifelse(mega2[22]>0, "1", "0"))
+mega2[23] <- as.numeric(ifelse(mega2[23]>0, "1", "0"))
+mega2[24] <- as.numeric(ifelse(mega2[24]>0, "1", "0"))
+
+mega2[27] <- as.numeric(ifelse(mega2[27]>0, "1", "0"))
+mega2[28] <- as.numeric(ifelse(mega2[28]>0, "1", "0"))
+mega2[29] <- as.numeric(ifelse(mega2[29]>0, "1", "0"))
+
+# For the IMC and attention check we only focused on accuracy to the rest of the responses were simply coded as 0s - incorrect
+mega2[12] <- as.numeric(ifelse(mega2[12]==4, "1", "0"))
+mega2[26] <- as.numeric(ifelse(mega2[26]==1, "1", "0"))
+```
+
+### Add mean ratings for food primes
+
+```{r}
+mega2[32] <- ldply(data2, function(x) mean(as.numeric(x$response[x$trialcode=="HML_r_rh_p"])), .id=NULL)
+mega2[33] <- ldply(data2, function(x) mean(as.numeric(x$response[x$trialcode=="HLL_r_rh_p"])), .id=NULL)
+mega2[34] <- ldply(data2, function(x) mean(as.numeric(x$response[x$trialcode=="UML_r_rh_p"])), .id=NULL)
+mega2[35] <- ldply(data2, function(x) mean(as.numeric(x$response[x$trialcode=="ULL_r_rh_p"])), .id=NULL)
+
+mega2[36] <- ldply(data2, function(x) mean(as.numeric(x$response[x$trialcode=="HML_r_rv_p"])), .id=NULL)
+mega2[37] <- ldply(data2, function(x) mean(as.numeric(x$response[x$trialcode=="HLL_r_rv_p"])), .id=NULL)
+mega2[38] <- ldply(data2, function(x) mean(as.numeric(x$response[x$trialcode=="UML_r_rv_p"])), .id=NULL)
+mega2[39] <- ldply(data2, function(x) mean(as.numeric(x$response[x$trialcode=="ULL_r_rv_p"])), .id=NULL)
+
+mega2[40] <- ldply(data2, function(x) mean(as.numeric(x$response[x$trialcode=="HML_r_fc"])), .id=NULL)
+mega2[41] <- ldply(data2, function(x) mean(as.numeric(x$response[x$trialcode=="HLL_r_fc"])), .id=NULL)
+mega2[42] <- ldply(data2, function(x) mean(as.numeric(x$response[x$trialcode=="UML_r_fc"])), .id=NULL)
+mega2[43] <- ldply(data2, function(x) mean(as.numeric(x$response[x$trialcode=="ULL_r_fc"])), .id=NULL)
+
+mega2[44] <- ldply(data2, function(x) mean(as.numeric(x$response[x$trialcode=="HML_r_ra_p"])), .id=NULL)
+mega2[45] <- ldply(data2, function(x) mean(as.numeric(x$response[x$trialcode=="HLL_r_ra_p"])), .id=NULL)
+mega2[46] <- ldply(data2, function(x) mean(as.numeric(x$response[x$trialcode=="UML_r_ra_p"])), .id=NULL)
+mega2[47] <- ldply(data2, function(x) mean(as.numeric(x$response[x$trialcode=="ULL_r_ra_p"])), .id=NULL)
+```
+
+### Add mean ratings for non-food primes
+    
+    ```{r}
+mega2[48] <- ldply(data2, function(x) mean(as.numeric(x$response[x$trialcode=="c_r_rv_p"])), .id=NULL)
+mega2[49] <- ldply(data2, function(x) mean(as.numeric(x$response[x$trialcode=="c_r_ra_p"])), .id=NULL)
+```
+
+### Add mean ratings for targets
+
+```{r}
+mega2[50] <- ldply(data2, function(x) mean(as.numeric(x$response[x$trialcode=="pos_t_ra_t"])), .id=NULL)
+mega2[51] <- ldply(data2, function(x) mean(as.numeric(x$response[x$trialcode=="neg_t_ra_t"])), .id=NULL)
+mega2[52] <- ldply(data2, function(x) mean(as.numeric(x$response[x$trialcode=="pos_t_rv_t"])), .id=NULL)
+mega2[53] <- ldply(data2, function(x) mean(as.numeric(x$response[x$trialcode=="neg_t_rv_t"])), .id=NULL)
+```
+
+###   Add priming effects for potential exploratory analyses
+
+food1_app$DRT_h = food1_app$inc_hml_RT - food1_app$con_hml_RT
+food1_app$DRT_u = food1_app$inc_uml_RT - food1_app$con_uml_RT
+
+food1_app$DER_h = food1_app$inc_hml_ER - food1_app$con_hml_ER
+food1_app$DER_u = food1_app$inc_uml_ER - food1_app$con_uml_ER
+
+food1_app$DRT_hml = food1_app$DRT_u - food1_app$DRT_h
+
+> Definitions
+DRT_F = RTinc - RTcon from food prime trials
+DRT_H  = RTinc - RTcon from healthy food prime trials
+DRT_U = RTinc - RTcon from unhealthy food prime trials
+DRT_UML = RTinc = RTcon from unhealthy most liked food prime trials
+DRT_HML = RTinc - RTcon from healthy most liked food prime trials
+DRT_ML = DRT_UML - DRT_HML (H2d contrast as a difference score)
+DRT_NF = RTinc - RTcon from non-food prime trials
+
+```{r}
+mega1[54] <- food1_app$diff_RT * (-1) # we multiply by -1 because diff scores were calculated in the opposite way (con-inc) and need to flip pos/neg
+mega1[55] <- food1_app$diff_RT_h * (-1)
+mega1[56] <- food1_app$diff_RT_u * (-1)
+mega1[57] <- food1_app$DRT_h
+mega1[58] <- food1_app$DRT_u
+mega1[59] <- food1_app$DRT_hml
+mega1[60] <- nonfood1_app$diff_RT * (-1)
+
+#For online  data we need to again exclude incomplete
+food2_app <- subset(food2_app, !(.id %in% incomplete))
+nonfood2_app <- subset(nonfood2_app, !(.id %in% incomplete))
+
+mega2[54] <- food2_app$diff_RT * (-1) 
+mega2[55] <- food2_app$diff_RT_h * (-1)
+mega2[56] <- food2_app$diff_RT_u * (-1)
+mega2[57] <- food2_app$DRT_h
+mega2[58] <- food2_app$DRT_u
+mega2[59] <- food2_app$DRT_hml
+mega2[60] <- nonfood2_app$diff_RT * (-1)
+```
+
+### Add mean liking values 
+
+```{r}
+mega1[61] <- ldply(data1, function(x) mean(as.numeric(x$values.liking[x$values.block_count == 1 & (x$trialcode == "UML_con" | x$trialcode == "UML_inc")])), .id = NULL)
+mega1[62] <- ldply(data1, function(x) mean(as.numeric(x$values.liking[x$values.block_count == 1 & (x$trialcode == "ULL_con" | x$trialcode == "ULL_inc")])), .id = NULL)
+mega1[63] <- ldply(data1, function(x) mean(as.numeric(x$values.liking[x$values.block_count == 1 & (x$trialcode == "HML_con" | x$trialcode == "HML_inc")])), .id = NULL)
+mega1[64] <- ldply(data1, function(x) mean(as.numeric(x$values.liking[x$values.block_count == 1 & (x$trialcode == "HLL_con" | x$trialcode == "HLL_inc")])), .id = NULL)
+mega1[65] <- ldply(data1, function(x) mean(as.numeric(x$values.liking[x$values.block_count == 1 & (x$trialcode == "NF_con" | x$trialcode == "NF_inc")])), .id = NULL)
+
+##
+
+mega2[61] <- ldply(data2, function(x) mean(as.numeric(x$values.liking[x$values.block_count == 1 & (x$trialcode == "UML_con" | x$trialcode == "UML_inc")])), .id = NULL)
+mega2[62] <- ldply(data2, function(x) mean(as.numeric(x$values.liking[x$values.block_count == 1 & (x$trialcode == "ULL_con" | x$trialcode == "ULL_inc")])), .id = NULL)
+mega2[63] <- ldply(data2, function(x) mean(as.numeric(x$values.liking[x$values.block_count == 1 & (x$trialcode == "HML_con" | x$trialcode == "HML_inc")])), .id = NULL)
+mega2[64] <- ldply(data2, function(x) mean(as.numeric(x$values.liking[x$values.block_count == 1 & (x$trialcode == "HLL_con" | x$trialcode == "HLL_inc")])), .id = NULL)
+mega2[65] <- ldply(data2, function(x) mean(as.numeric(x$values.liking[x$values.block_count == 1 & (x$trialcode == "NF_con" | x$trialcode == "NF_inc")])), .id = NULL)
+```
+
+
+### Add food choice measures 
+
+```{r}
+# Some participants with many missed trials in the FCT task may have been excluded- data rows will not have a matching number of rows
+# We need to exclude these participants from the megafiles (only used for exploratory analyses so it is acceptable) 
+
+mega1 <- subset(mega1, id %in% FCT1_incl)
+mega2 <- subset(mega2, id %in% FCT2_incl)
+
+#For online  data we also need to remove IDs that have been excluded before because of incomplete data
+FCT_full2 <- subset(FCT_full2, !(.id %in% incomplete))
+
+mega1[66] <- FCT_full1$p.mh
+mega1[67] <- FCT_full1$p.mu
+mega1[68] <- FCT_full1$p.um
+
+mega2[66] <- FCT_full2$p.mh
+mega2[67] <- FCT_full2$p.mu
+mega2[68] <- FCT_full2$p.um
+
+## RTs from the food choice task
+
+complete <- unique(mega2$id)
+FCT2 <- FCT2[sapply(FCT2, function(x) any(x$participant %in% complete))]
+
+mega1[69] <- ldply(FCT1, function(x) mean(as.numeric(x$rt[x$trial=="LC_HF" & x$choice==1])), .id = NULL)
+mega1[70] <- ldply(FCT1, function(x) mean(as.numeric(x$rt[x$trial=="LC_UF" & x$choice==1])), .id = NULL)
+mega1[71] <- ldply(FCT1, function(x) mean(as.numeric(x$rt[x$trial=="HC_ML" & x$choice==1])), .id = NULL)
+
+mega2[69] <- ldply(FCT2, function(x) mean(as.numeric(x$rt[x$trial=="LC_HF" & x$choice==1])), .id = NULL)
+mega2[70] <- ldply(FCT2, function(x) mean(as.numeric(x$rt[x$trial=="LC_UF" & x$choice==1])), .id = NULL)
+mega2[71] <- ldply(FCT2, function(x) mean(as.numeric(x$rt[x$trial=="HC_ML" & x$choice==1])), .id = NULL)
+```
+
+### Export megafile csvs
+```{r}
+write.csv(mega1, "megafile1.csv")
+write.csv(mega2, "megafile2.csv")
+
+#For reporting purposes we don't need priming measures again so exclude from file
+write.csv(subset(mega1, select=c(1:53, 61:65)), here("reporting", "mega_lab.csv"), row.names = FALSE)
+write.csv(subset(mega2, select=c(1:53, 61:65)), here("reporting", "mega_onl.csv"), row.names = FALSE)
+```
+
+
+### Create tables of Bayesian and frequentist statistics for hypotheses H1-H3
+
+* Laboratory data
+
+```{r}
+#Create an empty dataframe to store results
+table1 <- as.data.frame(matrix(nrow=10, ncol=9))
+
+#Specify hypotheses in first column
+table1[1] <- c("H1a", "H1b", "H2a", "H2b", "H2c", "H2d", "H3a", "H3b", "H3c", "H3d")
+
+
+#Get BF10s from BayesFactor objects and add to second column
+table1$V2[1] <- H1a.BF1[1]
+table1$V2[2] <- H1b.BF1[1]
+table1$V2[3] <- H2a.BF1[1]
+table1$V2[4] <- H2b.BF1[1]
+table1$V2[5] <- H2c.BF1[1]
+table1$V2[6] <- H2d.BF1[1]
+table1$V2[7] <- H3a.BF1[1]
+table1$V2[8] <- H3b.BF1[1]
+table1$V2[9] <- H3c.BF1[1]
+table1$V2[10] <- H3d.BF1[1]
+
+table1$V3 <- c(as.numeric(H1a.ST1$ttest$asDF[4]), as.numeric(H1b.ST1$ttest$asDF[4]), as.numeric(H2a.ST1$ttest$asDF[4]),
+               as.numeric(H2b.ST1$ttest$asDF[4]), as.numeric(H2c.ST1$ttest$asDF[4]), as.numeric(H2d.ST1$ttest$asDF[4]),
+               as.numeric(H3a.ST1$ttest$asDF[4]), as.numeric(H3b.ST1$ttest$asDF[4]), as.numeric(H3c.ST1$ttest$asDF[4]),
+               as.numeric(H3d.ST1$ttest$asDF[4]))
+
+table1$V4 <- c(as.numeric(H1a.ST1$ttest$asDF[6]), as.numeric(H1b.ST1$ttest$asDF[6]), as.numeric(H2a.ST1$ttest$asDF[6]), 
+               as.numeric(H2b.ST1$ttest$asDF[6]), as.numeric(H2c.ST1$ttest$asDF[6]), as.numeric(H2d.ST1$ttest$asDF[6]),
+               as.numeric(H3a.ST1$ttest$asDF[6]), as.numeric(H3b.ST1$ttest$asDF[6]), as.numeric(H3c.ST1$ttest$asDF[6]),
+               as.numeric(H3d.ST1$ttest$asDF[6]))
+
+table1$V5 <- c(as.numeric(H1a.ST1$ttest$asDF[7]), as.numeric(H1b.ST1$ttest$asDF[7]), as.numeric(H2a.ST1$ttest$asDF[7]),
+               as.numeric(H2b.ST1$ttest$asDF[7]), as.numeric(H2c.ST1$ttest$asDF[7]), as.numeric(H2d.ST1$ttest$asDF[7]),
+               as.numeric(H3a.ST1$ttest$asDF[7]), as.numeric(H3b.ST1$ttest$asDF[7]), as.numeric(H3c.ST1$ttest$asDF[7]),
+               as.numeric(H3d.ST1$ttest$asDF[7]))
+
+table1$V6 <- c(H1a.1.d_av, H1b.1.d_av, H2a.1.d_av, H2b.1.d_av, H2c.1.d_av, H2d.1.d_av, H3a.1.d_av, H3b.1.d_av, H3c.1.d_av, H3d.1.d_av)
+
+table1$V7 <- c(H1a.1.d_av_lci, H1b.1.d_av_lci, H2a.1.d_av_lci, H2b.1.d_av_lci, H2c.1.d_av_lci, H2d.1.d_av_lci, H3a.1.d_av_lci,
+               H3b.1.d_av_lci, H3c.1.d_av_lci, H3d.1.d_av_lci)
+
+table1$V8 <- c(H1a.1.d_av_uci, H1b.1.d_av_uci, H2a.1.d_av_uci, H2b.1.d_av_uci, H2c.1.d_av_uci, H2d.1.d_av_uci,
+               H3a.1.d_av_uci, H3b.1.d_av_uci, H3c.1.d_av_uci, H3d.1.d_av_uci)
+
+table1$V9 <- ifelse(table1$V2 >= 10, "Supported", ifelse(table1$V2<=0.1, "Not supported", "Inconclusive"))
+
+#Add column names to save
+names(table1) <- c("Hypothesis", "BF10", "t", "p", "Mdiff", "dav", "lowerCI", "upperCI", "conclusion")
+
+write.csv(table1, "table1.csv", row.names = FALSE)
+```
+
+* Online data
+
+```{r}
+#Create an empty dataframe to store results
+table2 <- as.data.frame(matrix(nrow=10, ncol=9))
+
+#Specify hypotheses in first column
+table2[1] <- c("H1a", "H1b", "H2a", "H2b", "H2c", "H2d", "H3a", "H3b", "H3c", "H3d")
+
+#Get BF10s from BayesFactor objects and add to second column
+table2$V2[1] <- H1a.BF2[1]
+table2$V2[2] <- H1b.BF2[1]
+table2$V2[3] <- H2a.BF2[1]
+table2$V2[4] <- H2b.BF2[1]
+table2$V2[5] <- H2c.BF2[1]
+table2$V2[6] <- H2d.BF2[1]
+table2$V2[7] <- H3a.BF2[1]
+table2$V2[8] <- H3b.BF2[1]
+table2$V2[9] <- H3c.BF2[1]
+table2$V2[10] <- H3d.BF2[1]
+
+table2$V3 <- c(as.numeric(H1a.ST2$ttest$asDF[4]), as.numeric(H1b.ST2$ttest$asDF[4]), as.numeric(H2a.ST2$ttest$asDF[4]),
+               as.numeric(H2b.ST2$ttest$asDF[4]), as.numeric(H2c.ST2$ttest$asDF[4]), as.numeric(H2d.ST2$ttest$asDF[4]),
+               as.numeric(H3a.ST2$ttest$asDF[4]), as.numeric(H3b.ST2$ttest$asDF[4]), as.numeric(H3c.ST2$ttest$asDF[4]),
+               as.numeric(H3d.ST2$ttest$asDF[4]))
+
+table2$V4 <- c(as.numeric(H1a.ST2$ttest$asDF[6]), as.numeric(H1b.ST2$ttest$asDF[6]), as.numeric(H2a.ST2$ttest$asDF[6]), 
+               as.numeric(H2b.ST2$ttest$asDF[6]), as.numeric(H2c.ST2$ttest$asDF[6]), as.numeric(H2d.ST2$ttest$asDF[6]),
+               as.numeric(H3a.ST2$ttest$asDF[6]), as.numeric(H3b.ST2$ttest$asDF[6]), as.numeric(H3c.ST2$ttest$asDF[6]),
+               as.numeric(H3d.ST2$ttest$asDF[6]))
+
+table2$V5 <- c(as.numeric(H1a.ST2$ttest$asDF[7]), as.numeric(H1b.ST2$ttest$asDF[7]), as.numeric(H2a.ST2$ttest$asDF[7]),
+               as.numeric(H2b.ST2$ttest$asDF[7]), as.numeric(H2c.ST2$ttest$asDF[7]), as.numeric(H2d.ST2$ttest$asDF[7]),
+               as.numeric(H3a.ST2$ttest$asDF[7]), as.numeric(H3b.ST2$ttest$asDF[7]), as.numeric(H3c.ST2$ttest$asDF[7]),
+               as.numeric(H3d.ST2$ttest$asDF[7]))
+
+table2$V6 <- c(H1a.2.d_av, H1b.2.d_av, H2a.2.d_av, H2b.2.d_av, H2c.2.d_av, H2d.2.d_av, H3a.2.d_av, H3b.2.d_av, H3c.2.d_av, H3d.2.d_av)
+
+table2$V7 <- c(H1a.2.d_av_lci, H1b.2.d_av_lci, H2a.2.d_av_lci, H2b.2.d_av_lci, H2c.2.d_av_lci, H2d.2.d_av_lci, H3a.2.d_av_lci,
+               H3b.2.d_av_lci, H3c.2.d_av_lci, H3d.2.d_av_lci)
+
+table2$V8 <- c(H1a.2.d_av_uci, H1b.2.d_av_uci, H2a.2.d_av_uci, H2b.2.d_av_uci, H2c.2.d_av_uci, H2d.2.d_av_uci,
+               H3a.2.d_av_uci, H3b.2.d_av_uci, H3c.2.d_av_uci, H3d.2.d_av_uci)
+
+table2$V9 <- ifelse(table2$V2 >= 10, "Supported", ifelse(table2$V2<=0.1, "Not supported", "Inconclusive"))
+
+names(table2) <- c("Hypothesis", "BF10", "t", "p", "Mdiff", "dav", "lowerCI", "upperCI", "conclusion")
+
+write.csv(table2, "table2.csv", row.names = FALSE)
+```
+
+
+
