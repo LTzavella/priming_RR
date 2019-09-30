@@ -125,6 +125,12 @@ data1 <- data1[sapply(data1, function(x) any(x$subject %in% APP1_incl))]
 data2 <- data2[sapply(data2, function(x) any(x$subject %in% APP2_incl))]
 ```
 
+Remove trials with timing delays from the data
+```{r}
+APP1 <- lapply(APP1, subset, timing==0)
+APP2 <- lapply(APP2, subset, timing==0)
+```
+
 * Seperate food and non-food prime trials 
 
 ```{r}
@@ -197,23 +203,22 @@ food1_app <- food1_app[, !duplicated(colnames(food1_app))]
 food2_app <- food2_app[, !duplicated(colnames(food2_app))]
 ```
 
-* Participants with error rates (ERs) greater or equal to 0.4 in either food or non-food prime trials 
-  will be excluded from all respective analyses
+* Participants with error rates (ERs) greater or equal to 0.4 in either food or non-food prime trials will be excluded from all respective analyses
   
 ```{r}
 #Get IDs of participants that will be included in analyses based on ER < 0.4
-ER1_incl <- unique(c(unique(nonfood1_app$.id[nonfood1_app$ER<0.4]), unique(food1_app$.id[food1_app$ER<0.4])))
-ER2_incl <- unique(c(unique(nonfood2_app$.id[nonfood2_app$ER<0.4]), unique(food2_app$.id[food2_app$ER<0.4])))
+ER1_excl <- unique(c(unique(nonfood1_app$.id[nonfood1_app$ER>=0.4]), unique(food1_app$.id[food1_app$ER>=0.4])))
+ER2_excl <- unique(c(unique(nonfood2_app$.id[nonfood2_app$ER>=0.4]), unique(food2_app$.id[food2_app$ER>=0.4])))
 
 #Remove participants from analyses datasets and data1/data2 which will be later pre-processed for FCT analyses
-nonfood1_app <- subset(nonfood1_app, !(ER>=0.4))
-nonfood2_app <- subset(nonfood2_app, !(ER>=0.4))
+nonfood1_app <- subset(nonfood1_app, !(.id %in% ER1_excl))
+nonfood2_app <- subset(nonfood2_app, !(.id %in% ER2_excl))
 
-food1_app <- subset(food1_app, !(ER>=0.4))
-food2_app <- subset(food2_app, !(ER>=0.4))
+food1_app <- subset(food1_app, !(.id %in% ER1_excl))
+food2_app <- subset(food2_app, !(.id %in% ER2_excl))
 
-data1 <- data1[sapply(data1, function(x) any(x$subject %in% ER1_incl))]
-data2 <- data2[sapply(data2, function(x) any(x$subject %in% ER2_incl))]
+data1 <- data1[sapply(data1, function(x) any(!x$subject %in% ER1_excl))]
+data2 <- data2[sapply(data2, function(x) any(!x$subject %in% ER2_excl))]
 ```
 
 
@@ -257,10 +262,10 @@ nonfood1_app$diff_RT = nonfood1_app$con_RT - nonfood1_app$inc_RT
 nonfood1_app$diff_ER = nonfood1_app$con_ER - nonfood1_app$inc_ER
 
 #Online data 
-food2_app$diff_RT = food1_app$con_RT - food1_app$inc_RT
-food2_app$diff_RT_h = food1_app$con_h_RT - food1_app$inc_h_RT
-food2_app$diff_RT_u = food1_app$con_u_RT - food1_app$inc_u_RT
-food2_app$diff_DRT = food1_app$DRT_h - food1_app$DRT_u
+food2_app$diff_RT = food2_app$con_RT - food2_app$inc_RT
+food2_app$diff_RT_h = food2_app$con_h_RT - food2_app$inc_h_RT
+food2_app$diff_RT_u = food2_app$con_u_RT - food2_app$inc_u_RT
+food2_app$diff_DRT = food2_app$DRT_h - food2_app$DRT_u
 
 food2_app$diff_ER = food2_app$con_ER - food2_app$inc_ER
 food2_app$diff_ER_h = food2_app$con_h_ER - food2_app$inc_h_ER
@@ -299,6 +304,8 @@ FCT2 <- lapply(FCT2, setNames, nm = names2)
 > FCrepeat==0 --> participants responded on the trial either initially, or after it was repeated
 
 ```{r}
+#Haven't accounted for people who quit during the FCT- is this captured for exclusions
+
 #Remove feedback trials (for complete and missed responses) as well as missed trials 
 FCT1 <- lapply(FCT1, subset, FCrepeat!=1)
 FCT2 <- lapply(FCT2, subset, FCrepeat!=1)
@@ -346,6 +353,9 @@ FCT2 <- lapply(FCT2, subset, response==0)
                           
 > p(unhealthy|most liked):  probability of selecting an unhealthy food in unhealthy vs healthy trials with most liked food pairs
                             trial==HC_ML, choice==UF_ML compared to HF_ML
+least liked food items in the most liked vs least liked trials when both healthy and unhealthy food pairs are presented, which should be below 0.5 if prime selection according to liking was successful [see also 33].
+
+
 
 ```{r}
 #Recode choices according to trial types with 1s and 0s to get choice probabilities
@@ -371,7 +381,7 @@ FCT2_outcomes <- ldply(FCT2, FCT_p)
 #### Normality assumption check and data transformations
 
 * Shapiro-Wilk tests for RTs (H1a, H2a-H2d)
-```{r}
+```{r warning=FALSE}
 #The function saves the p-values from the tests in 'SW_RT'
 SW_RT1 <- Shapiro_wilk_RTs(food1_app, nonfood1_app)
 SW_RT2 <- Shapiro_wilk_RTs(food2_app, nonfood2_app)
@@ -384,11 +394,22 @@ food1_app <- log_H2(data = food1_app, sw = SW_RT1)
 
 nonfood2_app <- log_H1a(data = nonfood2_app, sw = SW_RT2)
 food2_app <- log_H2(data = food2_app, sw = SW_RT2)
+    
+#If RTs are log transformed we will need to recalculate the difference scores- code same as used above
+    
+food1_app <- log_diff(food1_app)
+food2_app <- log_diff(food2_app)
 ```
+
+<!-- TODO here as well-->
+
+<!--REVIEW this-->
 
 * Shapiro-Wilk tests for ERs (H1b, H3a-H3d)
   
 ```{r}
+# TODO doesn't seem to work on html-- 
+
 #The function saves the p-values from the tests in 'SW_ER'
 SW_ER1 <- Shapiro_wilk_ERs(food1_app, nonfood1_app)
 SW_ER2 <- Shapiro_wilk_ERs(food2_app, nonfood2_app)
@@ -404,8 +425,15 @@ SW_ER2
 
 ```{r}
 #FCT data may have excluded participants that were included in the APP data sets
+
 FCT_app1 <- subset(food1_app, select=c(".id", "DRT_h", "DRT_u", "DRT_hml"))
 FCT_app1 <- subset(FCT_app1, .id %in% FCT1_incl)
+
+#if (food2_app$transform=="none") {
+#  FCT_app2 <- subset(food2_app, select=c(".id", "DRT_h", "DRT_u", "DRT_hml"))
+#} else {
+#  FCT_app2 <- subset(food2_app, select=c(".id", "DRT_h_log", "DRT_u_log", "DRT_hml_log"))
+#}
 
 FCT_app2 <- subset(food2_app, select=c(".id", "DRT_h", "DRT_u", "DRT_hml"))
 FCT_app2 <- subset(FCT_app2, .id %in% FCT2_incl)
@@ -418,3 +446,15 @@ FCT_full2 <- cbind(FCT_app2, FCT2_outcomes)
 FCT_full1 <- FCT_full1[, !duplicated(colnames(FCT_full1))]
 FCT_full2 <- FCT_full2[, !duplicated(colnames(FCT_full2))]
 ```
+
+#### Export created data frames for potential use in later manuscript
+```{r}
+write.csv(food1_app, "food1_app.csv", row.names=FALSE)
+write.csv(food2_app, "food2_app.csv", row.names=FALSE)
+write.csv(nonfood1_app, "nonfood1_app.csv", row.names=FALSE)
+write.csv(nonfood2_app, "nonfood2_app.csv", row.names=FALSE)
+
+write.csv(FCT_full1, "FCT1.csv", row.names = FALSE)
+write.csv(FCT_full2, "FCT2.csv", row.names = FALSE)
+```
+

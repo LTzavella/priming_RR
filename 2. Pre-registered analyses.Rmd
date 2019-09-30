@@ -15,9 +15,17 @@ output: html_document
 
 * Bayesian paired samples t-tests for H1 [manipulation check]
 
+```{r warning=FALSE}
+if (nonfood1_app$transform == "none") {
+  H1a.BF1 <- ttestBF(x = nonfood1_app$con_RT, y = nonfood1_app$inc_RT, paired = TRUE, rscale = "medium", nullInterval = c(-Inf, 0))
+  print("non-transformed")
+} else {
+  H1a.BF1 <- ttestBF(x = nonfood1_app$logRTcon, y = nonfood1_app$logRTinc, paired = TRUE, rscale = "medium", nullInterval = c(-Inf, 0))
+  print("log-transformed")
+}
+```
 ```{r}
-H1a.BF1 <- ttestBF(x=nonfood1_app$con_RT, y=nonfood1_app$inc_RT, paired=TRUE, rscale="medium", nullInterval = c(-Inf,0))
-H1b.BF1 <- ttestBF(x=nonfood1_app$con_ER, y=nonfood1_app$inc_ER, paired=TRUE, rscale="medium", nullInterval = c(-Inf,0))
+H1b.BF1 <- ttestBF(x = nonfood1_app$con_ER, y = nonfood1_app$inc_ER, paired = TRUE, rscale = "medium", nullInterval = c(-Inf, 0))
 ```
 
 ```{r}
@@ -30,11 +38,41 @@ H1b.BF1
 
 * Bayesian paired samples t-tests for H2 [RT priming effects]
 
-```{r}
-H2a.BF1 <- ttestBF(x=food1_app$con_RT, y=food1_app$inc_RT, paired=TRUE, rscale="medium", nullInterval = c(-Inf,0))
-H2b.BF1 <- ttestBF(x=food1_app$con_h_RT, y=food1_app$inc_h_RT, paired=TRUE, rscale="medium", nullInterval = c(-Inf,0))
-H2c.BF1 <- ttestBF(x=food1_app$con_u_RT, y=food1_app$inc_u_RT, paired=TRUE, rscale="medium", nullInterval = c(-Inf,0))
-H2d.BF1 <- ttestBF(x=food1_app$DRT_h, y=food1_app$DRT_u, paired=TRUE, rscale="medium", nullInterval = c(-Inf,0))
+```{r warning=FALSE}
+if (food1_app$transform == "none") {
+  H2a.BF1 <- ttestBF(x = food1_app$con_RT, y = food1_app$inc_RT, paired = TRUE, rscale = "medium", nullInterval = c(-Inf, 0))
+  print("non-transformed")
+} else {
+  H2a.BF1 <- ttestBF(x = food1_app$logRTcon, y = food1_app$logRTinc, paired = TRUE, rscale = "medium", nullInterval = c(-Inf, 0))
+  print("log-transformed")
+}
+```
+```{r warning=FALSE}
+if (food1_app$transform == "none") {
+  H2b.BF1 <- ttestBF(x = food1_app$con_h_RT, y = food1_app$inc_h_RT, paired = TRUE, rscale = "medium", nullInterval = c(-Inf, 0))
+  print("non-transformed")
+} else {
+  H2b.BF1 <- ttestBF(x = food1_app$logRTcon_h, y = food1_app$logRTinc_h, paired = TRUE, rscale = "medium", nullInterval = c(-Inf, 0))
+  print("log-transformed")
+}
+```
+```{r warning=FALSE}
+if (food1_app$transform == "none") {
+  H2c.BF1 <- ttestBF(x = food1_app$con_u_RT, y = food1_app$inc_u_RT, paired = TRUE, rscale = "medium", nullInterval = c(-Inf, 0))
+  print("non-transformed")
+} else {
+  H2c.BF1 <- ttestBF(x = food1_app$logRTcon_u, y = food1_app$logRTinc_u, paired = TRUE, rscale = "medium", nullInterval = c(-Inf, 0))
+  print("log-transformed")
+}
+```
+```{r warning=FALSE}
+if (food1_app$transform == "none") {
+  H2d.BF1 <- ttestBF(x = food1_app$DRT_h, y = food1_app$DRT_u, paired = TRUE, rscale = "medium", nullInterval = c(-Inf, 0))
+  print("non-transformed")
+} else {
+  H2d.BF1 <- ttestBF(x = food1_app$DRT_h_log, y = food1_app$DRT_u_log, paired = TRUE, rscale = "medium", nullInterval = c(-Inf, 0))
+  print("log-transformed")
+}
 ```
 
 ```{r}
@@ -45,44 +83,51 @@ H2a.BF1
 H2b.BF1
 ```
 
+
 ```{r}
 H2c.BF1
 ```
+
 
 ```{r}
 H2d.BF1
 ```
 
+
 * Bayesian paired samples t-tests for H3 [ER priming effects]
 
 ```{r}
-H3a.BF1 <- ttestBF(x=food1_app$con_ER, y=food1_app$inc_ER, paired=TRUE, rscale="medium", nullInterval = c(-Inf,0))
-H3b.BF1 <- ttestBF(x=food1_app$con_h_ER, y=food1_app$inc_h_ER, paired=TRUE, rscale="medium", nullInterval = c(-Inf,0))
-H3c.BF1 <- ttestBF(x=food1_app$con_u_ER, y=food1_app$inc_u_ER, paired=TRUE, rscale="medium", nullInterval = c(-Inf,0))
-H3d.BF1 <- ttestBF(x=food1_app$DER_h, y=food1_app$DER_u, paired=TRUE, rscale="medium", nullInterval = c(-Inf,0))
+H3a.BF1 <- ttestBF(x = food1_app$con_ER, y = food1_app$inc_ER, paired = TRUE, rscale = "medium", nullInterval = c(-Inf, 0))
+H3b.BF1 <- ttestBF(x = food1_app$con_h_ER, y = food1_app$inc_h_ER, paired = TRUE, rscale = "medium", nullInterval = c(-Inf, 0))
+H3c.BF1 <- ttestBF(x = food1_app$con_u_ER, y = food1_app$inc_u_ER, paired = TRUE, rscale = "medium", nullInterval = c(-Inf, 0))
+H3d.BF1 <- ttestBF(x = food1_app$DER_h, y = food1_app$DER_u, paired = TRUE, rscale = "medium", nullInterval = c(-Inf, 0))
 ```
 
 ```{r}
 H3a.BF1
 ```
 
+
 ```{r}
 H3b.BF1
 ```
+
 
 ```{r}
 H3c.BF1
 ```
 
+
 ```{r}
 H3d.BF1
 ```
 
-* Bayesian correlation pairs for H4 [food choices]
+
+* Bayesian correlation pairs forH3 H4 [food choices]
 ```{r}
-H4a.BF1 <- correlationBF(x=FCT_full1$DRT_h, y=FCT_full1$p.mh, rscale = 1, nullInterval = c(0, Inf))
-H4b.BF1 <- correlationBF(x=FCT_full1$DRT_u, y=FCT_full1$p.mu, rscale = 1, nullInterval = c(0, Inf))
-H4c.BF1 <- correlationBF(x=FCT_full1$DRT_hml, y=FCT_full1$p.um, rscale = 1, nullInterval = c(0, Inf))
+H4a.BF1 <- correlationBF(x = FCT_full1$DRT_h, y = FCT_full1$p.mh, rscale = 1, nullInterval = c(0, 1))
+H4b.BF1 <- correlationBF(x = FCT_full1$DRT_u, y = FCT_full1$p.mu, rscale = 1, nullInterval = c(0, 1))
+H4c.BF1 <- correlationBF(x = FCT_full1$DRT_hml, y = FCT_full1$p.um, rscale = 1, nullInterval = c(0, 1))
 ```
 
 ```{r}
@@ -101,75 +146,140 @@ H4c.BF1
 
 * Bayesian paired samples t-tests for H1 [manipulation check]
 
+```{r warning=FALSE}
+if (nonfood2_app$transform == "none") {
+  H1a.BF2 <- ttestBF(x = nonfood2_app$con_RT, y = nonfood2_app$inc_RT, paired = TRUE, rscale = "medium", nullInterval = c(-Inf, 0))
+  print("non-transformed")
+} else {
+  H1a.BF2 <- ttestBF(x = nonfood2_app$logRTcon, y = nonfood2_app$logRTinc, paired = TRUE, rscale = "medium", nullInterval = c(-Inf, 0))
+  print("log-transformed")
+}
+```
+
 ```{r}
-H1a.BF2 <- ttestBF(x=nonfood2_app$con_RT, y=nonfood2_app$inc_RT, paired=TRUE, rscale="medium", nullInterval = c(-Inf,0))
-H1b.BF2 <- ttestBF(x=nonfood2_app$con_ER, y=nonfood2_app$inc_ER, paired=TRUE, rscale="medium", nullInterval = c(-Inf,0))
+H1b.BF2 <- ttestBF(x = nonfood2_app$con_ER, y = nonfood2_app$inc_ER, paired = TRUE, rscale = "medium", nullInterval = c(-Inf, 0))
 ```
 
 ```{r}
 H1a.BF2
 ```
 
+
 ```{r}
 H1b.BF2
 ```
 
+
+
 * Bayesian paired samples t-tests for H2 [RT priming effects]
 
-```{r}
-H2a.BF2 <- ttestBF(x=food2_app$con_RT, y=food2_app$inc_RT, paired=TRUE, rscale="medium", nullInterval = c(-Inf,0))
-H2b.BF2 <- ttestBF(x=food2_app$con_h_RT, y=food2_app$inc_h_RT, paired=TRUE, rscale="medium", nullInterval = c(-Inf,0))
-H2c.BF2 <- ttestBF(x=food2_app$con_u_RT, y=food2_app$inc_u_RT, paired=TRUE, rscale="medium", nullInterval = c(-Inf,0))
-H2d.BF2 <- ttestBF(x=food2_app$DRT_h, y=food2_app$DRT_u, paired=TRUE, rscale="medium", nullInterval = c(-Inf,0))
+```{r warning=FALSE}
+if (food2_app$transform == "none") {
+  H2a.BF2 <- ttestBF(x = food2_app$con_RT, y = food2_app$inc_RT, paired = TRUE, rscale = "medium", nullInterval = c(-Inf, 0))
+  print("non-transformed")
+} else {
+  H2a.BF2 <- ttestBF(x = food2_app$logRTcon, y = food2_app$logRTinc, paired = TRUE, rscale = "medium", nullInterval = c(-Inf, 0))
+  print("log-transformed")
+}
 ```
+
+
+```{r warning=FALSE}
+if (food2_app$transform == "none") {
+  H2b.BF2 <- ttestBF(x = food2_app$con_h_RT, y = food2_app$inc_h_RT, paired = TRUE, rscale = "medium", nullInterval = c(-Inf, 0))
+  print("non-transformed")
+} else {
+  H2b.BF2 <- ttestBF(x = food2_app$logRTcon_h, y = food2_app$logRTinc_h, paired = TRUE, rscale = "medium", nullInterval = c(-Inf, 0))
+  print("log-transformed")
+}
+```
+
+
+```{r warning=FALSE}
+if (food2_app$transform == "none") {
+  H2c.BF2 <- ttestBF(x = food2_app$con_u_RT, y = food2_app$inc_u_RT, paired = TRUE, rscale = "medium", nullInterval = c(-Inf, 0))
+  print("non-transformed")
+} else {
+  H2c.BF2 <- ttestBF(x = food2_app$logRTcon_u, y = food2_app$logRTinc_u, paired = TRUE, rscale = "medium", nullInterval = c(-Inf, 0))
+  print("log-transformed")
+}
+```
+
+
+```{r warning=FALSE}
+if (food2_app$transform == "none") {
+  H2d.BF2 <- ttestBF(x = food2_app$DRT_h, y = food2_app$DRT_u, paired = TRUE, rscale = "medium", nullInterval = c(-Inf, 0))
+  print("non-transformed")
+} else {
+  H2d.BF2 <- ttestBF(x = food2_app$DRT_h_log, y = food2_app$DRT_u_log, paired = TRUE, rscale = "medium", nullInterval = c(-Inf, 0))
+  print("log-transformed")
+}
+```
+
+
 
 ```{r}
 H2a.BF2
 ```
 
+
+
 ```{r}
 H2b.BF2
 ```
+
+
 
 ```{r}
 H2c.BF2
 ```
 
+
+
 ```{r}
 H2d.BF2
 ```
 
+
 * Bayesian paired samples t-tests for H3 [ER priming effects]
 
 ```{r}
-H3a.BF2 <- ttestBF(x=food2_app$con_ER, y=food2_app$inc_ER, paired=TRUE, rscale="medium", nullInterval = c(-Inf,0))
-H3b.BF2 <- ttestBF(x=food2_app$con_h_ER, y=food2_app$inc_h_ER, paired=TRUE, rscale="medium", nullInterval = c(-Inf,0))
-H3c.BF2 <- ttestBF(x=food2_app$con_u_ER, y=food2_app$inc_u_ER, paired=TRUE, rscale="medium", nullInterval = c(-Inf,0))
-H3d.BF2 <- ttestBF(x=food2_app$DER_h, y=food2_app$DER_u, paired=TRUE, rscale="medium", nullInterval = c(-Inf,0))
+H3a.BF2 <- ttestBF(x = food2_app$con_ER, y = food2_app$inc_ER, paired = TRUE, rscale = "medium", nullInterval = c(-Inf, 0))
+H3b.BF2 <- ttestBF(x = food2_app$con_h_ER, y = food2_app$inc_h_ER, paired = TRUE, rscale = "medium", nullInterval = c(-Inf, 0))
+H3c.BF2 <- ttestBF(x = food2_app$con_u_ER, y = food2_app$inc_u_ER, paired = TRUE, rscale = "medium", nullInterval = c(-Inf, 0))
+H3d.BF2 <- ttestBF(x = food2_app$DER_h, y = food2_app$DER_u, paired = TRUE, rscale = "medium", nullInterval = c(-Inf, 0))
 ```
 
 ```{r}
 H3a.BF2
 ```
 
+
+
 ```{r}
 H3b.BF2
 ```
+
+
 
 ```{r}
 H3c.BF2
 ```
 
+
+
 ```{r}
 H3d.BF2
 ```
 
+
+
 * Bayesian correlation pairs for H4 [food choices]
 
 ```{r}
-H4a.BF2 <- correlationBF(x=FCT_full2$DRT_h, y=FCT_full2$p.mh, rscale = 1, nullInterval = c(0, Inf))
-H4b.BF2 <- correlationBF(x=FCT_full2$DRT_u, y=FCT_full2$p.mu, rscale = 1, nullInterval = c(0, Inf))
-H4c.BF2 <- correlationBF(x=FCT_full2$DRT_hml, y=FCT_full2$p.um, rscale = 1, nullInterval = c(0, Inf))
+H4a.BF2 <- correlationBF(x = FCT_full2$DRT_h, y = FCT_full2$p.mh, rscale = 1, nullInterval = c(0, 1))
+H4b.BF2 <- correlationBF(x = FCT_full2$DRT_u, y = FCT_full2$p.mu, rscale = 1, nullInterval = c(0, 1))
+H4c.BF2 <- correlationBF(x = FCT_full2$DRT_hml, y = FCT_full2$p.um, rscale = 1, nullInterval = c(0, 1))
 ```
 
 ```{r}
@@ -198,10 +308,21 @@ H4c.BF2
 
 * Frequentist paired samples t-tests for H1 [manipulation check]
 
-```{r}
-H1a.ST1 <- ttestPS(nonfood1_app, pairs = list(list(i1 = 'con_RT', i2 = 'inc_RT')), hypothesis = 'twoGreater', meanDiff = TRUE, effectSize = TRUE, ci = TRUE, desc = TRUE)
-H1b.ST1 <- ttestPS(nonfood1_app, pairs = list(list(i1 = 'con_ER', i2 = 'inc_ER')), hypothesis = 'twoGreater', meanDiff = TRUE, effectSize = TRUE, ci = TRUE, desc = TRUE)
+```{r warning=FALSE}
+if (nonfood1_app$transform == "none") {
+  H1a.ST1 <- ttestPS(nonfood1_app, pairs = list(list(i1 = "con_RT", i2 = "inc_RT")), hypothesis = "twoGreater", meanDiff = TRUE, effectSize = TRUE, ci = TRUE, desc = TRUE)
+  print("non-transformed")
+} else {
+  H1a.ST1 <- ttestPS(nonfood1_app, pairs = list(list(i1 = "logRTcon", i2 = "logRTinc")), hypothesis = "twoGreater", meanDiff = TRUE, effectSize = TRUE, ci = TRUE, desc = TRUE)
+  print("log-transformed")
+}
 ```
+
+
+```{r}
+H1b.ST1 <- ttestPS(nonfood1_app, pairs = list(list(i1 = "con_ER", i2 = "inc_ER")), hypothesis = "twoGreater", meanDiff = TRUE, effectSize = TRUE, ci = TRUE, desc = TRUE)
+```
+
 
 ```{r}
 H1a.ST1
@@ -213,11 +334,52 @@ H1b.ST1
 
 * Frequentist paired samples t-tests for H2 [RT priming effects]
 
-```{r}
-H2a.ST1 <- ttestPS(food1_app, pairs = list(list(i1 = 'con_RT', i2 = 'inc_RT')), hypothesis = 'twoGreater', meanDiff = TRUE, effectSize = TRUE, ci = TRUE, desc = TRUE)
-H2b.ST1 <- ttestPS(food1_app, pairs = list(list(i1 = 'con_h_RT', i2 = 'inc_h_RT')), hypothesis = 'twoGreater', meanDiff = TRUE, effectSize = TRUE, ci = TRUE, desc = TRUE)
-H2c.ST1 <- ttestPS(food1_app, pairs = list(list(i1 = 'con_u_RT', i2 = 'inc_u_RT')), hypothesis = 'twoGreater', meanDiff = TRUE, effectSize = TRUE, ci = TRUE, desc = TRUE)
-H2d.ST1 <- ttestPS(food1_app, pairs = list(list(i1 = 'DRT_h', i2 = 'DRT_u')), hypothesis = 'twoGreater', meanDiff = TRUE, effectSize = TRUE, ci = TRUE, desc = TRUE)
+```{r warning=FALSE}
+if (food1_app$transform == "none") {
+  H2a.ST1 <- ttestPS(food1_app, pairs = list(list(i1 = "con_RT", i2 = "inc_RT")), hypothesis = "twoGreater", meanDiff = TRUE, effectSize = TRUE, ci = TRUE, desc = TRUE)
+  print("non-transformed")
+} else {
+  H2a.ST1 <- ttestPS(food1_app, pairs = list(list(i1 = "logRTcon", i2 = "logRTinc")), hypothesis = "twoGreater", meanDiff = TRUE, effectSize = TRUE, ci = TRUE, desc = TRUE)
+  print("log-transformed")
+}
+```
+
+```{r warning=FALSE}
+if (food1_app$transform == "none") {
+  H2b.ST1 <- ttestPS(food1_app, pairs = list(list(i1 = "con_h_RT", i2 = "inc_h_RT")), hypothesis = "twoGreater", meanDiff = TRUE, effectSize = TRUE, ci = TRUE, desc = TRUE)
+
+  print("non-transformed")
+} else {
+  H2b.ST1 <- ttestPS(food1_app, pairs = list(list(i1 = "logRTcon_h", i2 = "logRTinc_h")), hypothesis = "twoGreater", meanDiff = TRUE, effectSize = TRUE, ci = TRUE, desc = TRUE)
+
+  print("log-transformed")
+}
+```
+
+
+```{r warning=FALSE}
+if (food1_app$transform == "none") {
+  H2c.ST1 <- ttestPS(food1_app, pairs = list(list(i1 = "con_u_RT", i2 = "inc_u_RT")), hypothesis = "twoGreater", meanDiff = TRUE, effectSize = TRUE, ci = TRUE, desc = TRUE)
+
+  print("non-transformed")
+} else {
+  H2c.ST1 <- ttestPS(food1_app, pairs = list(list(i1 = "logRTcon_u", i2 = "logRTinc_u")), hypothesis = "twoGreater", meanDiff = TRUE, effectSize = TRUE, ci = TRUE, desc = TRUE)
+
+  print("log-transformed")
+}
+```
+
+
+```{r warning=FALSE}
+if (food1_app$transform == "none") {
+  H2d.ST1 <- ttestPS(food1_app, pairs = list(list(i1 = "DRT_h", i2 = "DRT_u")), hypothesis = "twoGreater", meanDiff = TRUE, effectSize = TRUE, ci = TRUE, desc = TRUE)
+
+  print("non-transformed")
+} else {
+  H2d.ST1 <- ttestPS(food1_app, pairs = list(list(i1 = "DRT_h_log", i2 = "DRT_u_log")), hypothesis = "twoGreater", meanDiff = TRUE, effectSize = TRUE, ci = TRUE, desc = TRUE)
+
+  print("log-transformed")
+}
 ```
 
 ```{r}
@@ -239,10 +401,10 @@ H2d.ST1
 * Frequentist paired samples t-tests for H3 [ER priming effects]
 
 ```{r}
-H3a.ST1 <- ttestPS(food1_app, pairs = list(list(i1 = 'con_ER', i2 = 'inc_ER')), hypothesis = 'twoGreater', meanDiff = TRUE, effectSize = TRUE, ci = TRUE, desc = TRUE)
-H3b.ST1 <- ttestPS(food1_app, pairs = list(list(i1 = 'con_h_ER', i2 = 'inc_h_ER')), hypothesis = 'twoGreater', meanDiff = TRUE, effectSize = TRUE, ci = TRUE, desc = TRUE)
-H3c.ST1 <- ttestPS(food1_app, pairs = list(list(i1 = 'con_u_ER', i2 = 'inc_u_ER')), hypothesis = 'twoGreater', meanDiff = TRUE, effectSize = TRUE, ci = TRUE, desc = TRUE)
-H3d.ST1 <- ttestPS(food1_app, pairs = list(list(i1 = 'DER_h', i2 = 'DER_u')), hypothesis = 'twoGreater', meanDiff = TRUE, effectSize = TRUE, ci = TRUE, desc = TRUE)
+H3a.ST1 <- ttestPS(food1_app, pairs = list(list(i1 = "con_ER", i2 = "inc_ER")), hypothesis = "twoGreater", meanDiff = TRUE, effectSize = TRUE, ci = TRUE, desc = TRUE)
+H3b.ST1 <- ttestPS(food1_app, pairs = list(list(i1 = "con_h_ER", i2 = "inc_h_ER")), hypothesis = "twoGreater", meanDiff = TRUE, effectSize = TRUE, ci = TRUE, desc = TRUE)
+H3c.ST1 <- ttestPS(food1_app, pairs = list(list(i1 = "con_u_ER", i2 = "inc_u_ER")), hypothesis = "twoGreater", meanDiff = TRUE, effectSize = TRUE, ci = TRUE, desc = TRUE)
+H3d.ST1 <- ttestPS(food1_app, pairs = list(list(i1 = "DER_h", i2 = "DER_u")), hypothesis = "twoGreater", meanDiff = TRUE, effectSize = TRUE, ci = TRUE, desc = TRUE)
 ```
 
 ```{r}
@@ -264,9 +426,9 @@ H3d.ST1
 * Frequentist correlation pairs for H4 [food choices]
 
 ```{r}
-H4a.ST1 <- corrMatrix(FCT_full1, vars=c('DRT_h', 'p.mh'), hypothesis='pos', sig=TRUE, ci=TRUE)
-H4b.ST1 <- corrMatrix(FCT_full1, vars=c('DRT_u', 'p.mu'), hypothesis='pos', sig=TRUE, ci=TRUE)
-H4c.ST1 <- corrMatrix(FCT_full1, vars=c('DRT_hml', 'p.um'), hypothesis='pos', sig=TRUE, ci=TRUE)
+H4a.ST1 <- corrMatrix(FCT_full1, vars = c("DRT_h", "p.mh"), hypothesis = "pos", sig = TRUE, ci = TRUE)
+H4b.ST1 <- corrMatrix(FCT_full1, vars = c("DRT_u", "p.mu"), hypothesis = "pos", sig = TRUE, ci = TRUE)
+H4c.ST1 <- corrMatrix(FCT_full1, vars = c("DRT_hml", "p.um"), hypothesis = "pos", sig = TRUE, ci = TRUE)
 ```
 
 ```{r}
@@ -285,9 +447,18 @@ H4c.ST1
 
 * Frequentist paired samples t-tests for H1 [manipulation check]
 
+```{r warning=FALSE}
+if (nonfood2_app$transform == "none") {
+  H1a.ST2 <- ttestPS(nonfood2_app, pairs = list(list(i1 = "con_RT", i2 = "inc_RT")), hypothesis = "twoGreater", meanDiff = TRUE, effectSize = TRUE, ci = TRUE, desc = TRUE)
+  print("non-transformed")
+} else {
+  H1a.ST2 <- ttestPS(nonfood2_app, pairs = list(list(i1 = "logRTcon", i2 = "logRTinc")), hypothesis = "twoGreater", meanDiff = TRUE, effectSize = TRUE, ci = TRUE, desc = TRUE)
+  print("log-transformed")
+}
+```
+
 ```{r}
-H1a.ST2 <- ttestPS(nonfood1_app, pairs = list(list(i1 = 'con_RT', i2 = 'inc_RT')), hypothesis = 'twoGreater', meanDiff = TRUE, effectSize = TRUE, ci = TRUE, desc = TRUE)
-H1b.ST2 <- ttestPS(nonfood1_app, pairs = list(list(i1 = 'con_ER', i2 = 'inc_ER')), hypothesis = 'twoGreater', meanDiff = TRUE, effectSize = TRUE, ci = TRUE, desc = TRUE)
+H1b.ST2 <- ttestPS(nonfood2_app, pairs = list(list(i1 = "con_ER", i2 = "inc_ER")), hypothesis = "twoGreater", meanDiff = TRUE, effectSize = TRUE, ci = TRUE, desc = TRUE)
 ```
 
 ```{r}
@@ -300,11 +471,52 @@ H1b.ST2
 
 * Frequentist paired samples t-tests for H2 [RT priming effects]
 
-```{r}
-H2a.ST2 <- ttestPS(food1_app, pairs = list(list(i1 = 'con_RT', i2 = 'inc_RT')), hypothesis = 'twoGreater', meanDiff = TRUE, effectSize = TRUE, ci = TRUE, desc = TRUE)
-H2b.ST2 <- ttestPS(food1_app, pairs = list(list(i1 = 'con_h_RT', i2 = 'inc_h_RT')), hypothesis = 'twoGreater', meanDiff = TRUE, effectSize = TRUE, ci = TRUE, desc = TRUE)
-H2c.ST2 <- ttestPS(food1_app, pairs = list(list(i1 = 'con_u_RT', i2 = 'inc_u_RT')), hypothesis = 'twoGreater', meanDiff = TRUE, effectSize = TRUE, ci = TRUE, desc = TRUE)
-H2d.ST2 <- ttestPS(food1_app, pairs = list(list(i1 = 'DRT_h', i2 = 'DRT_u')), hypothesis = 'twoGreater', meanDiff = TRUE, effectSize = TRUE, ci = TRUE, desc = TRUE)
+```{r warning=FALSE}
+if (food2_app$transform == "none") {
+  H2a.ST2 <- ttestPS(food2_app, pairs = list(list(i1 = "con_RT", i2 = "inc_RT")), hypothesis = "twoGreater", meanDiff = TRUE, effectSize = TRUE, ci = TRUE, desc = TRUE)
+  print("non-transformed")
+} else {
+  H2a.ST2 <- ttestPS(food2_app, pairs = list(list(i1 = "logRTcon", i2 = "logRTinc")), hypothesis = "twoGreater", meanDiff = TRUE, effectSize = TRUE, ci = TRUE, desc = TRUE)
+  print("log-transformed")
+}
+```
+
+```{r warning=FALSE}
+if (food2_app$transform == "none") {
+  H2b.ST2 <- ttestPS(food2_app, pairs = list(list(i1 = "con_h_RT", i2 = "inc_h_RT")), hypothesis = "twoGreater", meanDiff = TRUE, effectSize = TRUE, ci = TRUE, desc = TRUE)
+
+  print("non-transformed")
+} else {
+  H2b.ST2 <- ttestPS(food2_app, pairs = list(list(i1 = "logRTcon_h", i2 = "logRTinc_h")), hypothesis = "twoGreater", meanDiff = TRUE, effectSize = TRUE, ci = TRUE, desc = TRUE)
+
+  print("log-transformed")
+}
+```
+
+
+```{r warning=FALSE}
+if (food2_app$transform == "none") {
+  H2c.ST2 <- ttestPS(food2_app, pairs = list(list(i1 = "con_u_RT", i2 = "inc_u_RT")), hypothesis = "twoGreater", meanDiff = TRUE, effectSize = TRUE, ci = TRUE, desc = TRUE)
+
+  print("non-transformed")
+} else {
+  H2c.ST2 <- ttestPS(food2_app, pairs = list(list(i1 = "logRTcon_u", i2 = "logRTinc_u")), hypothesis = "twoGreater", meanDiff = TRUE, effectSize = TRUE, ci = TRUE, desc = TRUE)
+
+  print("log-transformed")
+}
+```
+
+
+```{r warning=FALSE}
+if (food2_app$transform == "none") {
+  H2d.ST2 <- ttestPS(food2_app, pairs = list(list(i1 = "DRT_h", i2 = "DRT_u")), hypothesis = "twoGreater", meanDiff = TRUE, effectSize = TRUE, ci = TRUE, desc = TRUE)
+
+  print("non-transformed")
+} else {
+  H2d.ST2 <- ttestPS(food2_app, pairs = list(list(i1 = "DRT_h_log", i2 = "DRT_u_log")), hypothesis = "twoGreater", meanDiff = TRUE, effectSize = TRUE, ci = TRUE, desc = TRUE)
+
+  print("log-transformed")
+}
 ```
 
 ```{r}
@@ -326,46 +538,46 @@ H2d.ST2
 * Frequentist paired samples t-tests for H3 [ER priming effects]
 
 ```{r}
-H3a.ST2 <- ttestPS(food1_app, pairs = list(list(i1 = 'con_ER', i2 = 'inc_ER')), hypothesis = 'twoGreater', meanDiff = TRUE, effectSize = TRUE, ci = TRUE, desc = TRUE)
-H3b.ST2 <- ttestPS(food1_app, pairs = list(list(i1 = 'con_h_ER', i2 = 'inc_h_ER')), hypothesis = 'twoGreater', meanDiff = TRUE, effectSize = TRUE, ci = TRUE, desc = TRUE)
-H3c.ST2 <- ttestPS(food1_app, pairs = list(list(i1 = 'con_u_ER', i2 = 'inc_u_ER')), hypothesis = 'twoGreater', meanDiff = TRUE, effectSize = TRUE, ci = TRUE, desc = TRUE)
-H3d.ST2 <- ttestPS(food1_app, pairs = list(list(i1 = 'DER_h', i2 = 'DER_u')), hypothesis = 'twoGreater', meanDiff = TRUE, effectSize = TRUE, ci = TRUE, desc = TRUE)
+H3a.ST2 <- ttestPS(food2_app, pairs = list(list(i1 = "con_ER", i2 = "inc_ER")), hypothesis = "twoGreater", meanDiff = TRUE, effectSize = TRUE, ci = TRUE, desc = TRUE)
+H3b.ST2 <- ttestPS(food2_app, pairs = list(list(i1 = "con_h_ER", i2 = "inc_h_ER")), hypothesis = "twoGreater", meanDiff = TRUE, effectSize = TRUE, ci = TRUE, desc = TRUE)
+H3c.ST2 <- ttestPS(food2_app, pairs = list(list(i1 = "con_u_ER", i2 = "inc_u_ER")), hypothesis = "twoGreater", meanDiff = TRUE, effectSize = TRUE, ci = TRUE, desc = TRUE)
+H3d.ST2 <- ttestPS(food2_app, pairs = list(list(i1 = "DER_h", i2 = "DER_u")), hypothesis = "twoGreater", meanDiff = TRUE, effectSize = TRUE, ci = TRUE, desc = TRUE)
 ```
 
 ```{r}
-H3a.ST1
+H3a.ST2
 ```
 
 ```{r}
-H3b.ST1
+H3b.ST2
 ```
 
 ```{r}
-H3c.ST1
+H3c.ST2
 ```
 
 ```{r}
-H3d.ST1
+H3d.ST2
 ```
 
 * Frequentist correlation pairs for H4 [food choices]
 
 ```{r}
-H4a.ST2 <- corrMatrix(FCT_full1, vars=c('DRT_h', 'p.mh'), hypothesis='pos', sig=TRUE, ci=TRUE)
-H4b.ST2 <- corrMatrix(FCT_full1, vars=c('DRT_u', 'p.mu'), hypothesis='pos', sig=TRUE, ci=TRUE)
-H4c.ST2 <- corrMatrix(FCT_full1, vars=c('DRT_hml', 'p.um'), hypothesis='pos', sig=TRUE, ci=TRUE)
+H4a.ST2 <- corrMatrix(FCT_full2, vars = c("DRT_h", "p.mh"), hypothesis = "pos", sig = TRUE, ci = TRUE)
+H4b.ST2 <- corrMatrix(FCT_full2, vars = c("DRT_u", "p.mu"), hypothesis = "pos", sig = TRUE, ci = TRUE)
+H4c.ST2 <- corrMatrix(FCT_full2, vars = c("DRT_hml", "p.um"), hypothesis = "pos", sig = TRUE, ci = TRUE)
 ```
 
 ```{r}
-H4a.ST1
+H4a.ST2
 ```
 
 ```{r}
-H4b.ST1
+H4b.ST2
 ```
 
 ```{r}
-H4c.ST1
+H4c.ST2
 ```
 
 #### Calculate Cohen's dav for all hypotheses
@@ -375,12 +587,20 @@ H4c.ST1
 * Calculate standard deviations (SDs) for measures under H1-H3
 
 ```{r}
-#Calculate SDs for all measurements [laboratory]
-H1a.1.sd1 <- sd(nonfood1_app$con_RT)
-H1a.1.sd2 <- sd(nonfood1_app$inc_RT)
+# Calculate SDs for all measurements [laboratory]
+
+if (nonfood1_app$transform=="none") {
+  H1a.1.sd1 <- sd(nonfood1_app$con_RT)
+  H1a.1.sd2 <- sd(nonfood1_app$inc_RT)
+} else {
+  H1a.1.sd1 <- sd(nonfood1_app$logRTcon)
+  H1a.1.sd2 <- sd(nonfood1_app$logRTinc)
+}
+  
 H1b.1.sd1 <- sd(nonfood1_app$con_ER)
 H1b.1.sd2 <- sd(nonfood1_app$inc_ER)
 
+if (food1_app$transform=="none") {
 H2a.1.sd1 <- sd(food1_app$con_RT)
 H2a.1.sd2 <- sd(food1_app$inc_RT)
 H2b.1.sd1 <- sd(food1_app$con_h_RT)
@@ -389,6 +609,16 @@ H2c.1.sd1 <- sd(food1_app$con_u_RT)
 H2c.1.sd2 <- sd(food1_app$inc_u_RT)
 H2d.1.sd1 <- sd(food1_app$DRT_h)
 H2d.1.sd2 <- sd(food1_app$DRT_u)
+} else {
+H2a.1.sd1 <- sd(food1_app$logRTcon)
+H2a.1.sd2 <- sd(food1_app$logRTinc)
+H2b.1.sd1 <- sd(food1_app$logRTcon_h)
+H2b.1.sd2 <- sd(food1_app$logRTinc_h)
+H2c.1.sd1 <- sd(food1_app$logRTcon_u)
+H2c.1.sd2 <- sd(food1_app$logRTinc_u)
+H2d.1.sd1 <- sd(food1_app$DRT_h_log)
+H2d.1.sd2 <- sd(food1_app$DRT_u_log)
+}
 
 H3a.1.sd1 <- sd(food1_app$con_ER)
 H3a.1.sd2 <- sd(food1_app$inc_ER)
@@ -399,12 +629,19 @@ H3c.1.sd2 <- sd(food1_app$inc_u_ER)
 H3d.1.sd1 <- sd(food1_app$DER_h)
 H3d.1.sd2 <- sd(food1_app$DER_u)
 
-#Calculate SDs for all measurements [online]
-H1a.2.sd1 <- sd(nonfood2_app$con_RT)
-H1a.2.sd2 <- sd(nonfood2_app$inc_RT)
+# Calculate SDs for all measurements [online]
+if (nonfood2_app$transform=="none") {
+  H1a.2.sd1 <- sd(nonfood2_app$con_RT)
+  H1a.2.sd2 <- sd(nonfood2_app$inc_RT)
+} else {
+  H1a.2.sd1 <- sd(nonfood2_app$logRTcon)
+  H1a.2.sd2 <- sd(nonfood2_app$logRTinc)
+}
+
 H1b.2.sd1 <- sd(nonfood2_app$con_ER)
 H1b.2.sd2 <- sd(nonfood2_app$inc_ER)
 
+if (food2_app$transform=="none") {
 H2a.2.sd1 <- sd(food2_app$con_RT)
 H2a.2.sd2 <- sd(food2_app$inc_RT)
 H2b.2.sd1 <- sd(food2_app$con_h_RT)
@@ -413,6 +650,16 @@ H2c.2.sd1 <- sd(food2_app$con_u_RT)
 H2c.2.sd2 <- sd(food2_app$inc_u_RT)
 H2d.2.sd1 <- sd(food2_app$DRT_h)
 H2d.2.sd2 <- sd(food2_app$DRT_u)
+} else {
+H2a.2.sd1 <- sd(food2_app$logRTcon)
+H2a.2.sd2 <- sd(food2_app$logRTinc)
+H2b.2.sd1 <- sd(food2_app$logRTcon_h)
+H2b.2.sd2 <- sd(food2_app$logRTinc_h)
+H2c.2.sd1 <- sd(food2_app$logRTcon_u)
+H2c.2.sd2 <- sd(food2_app$logRTinc_u)
+H2d.2.sd1 <- sd(food2_app$DRT_h_log)
+H2d.2.sd2 <- sd(food2_app$DRT_u_log)
+}
 
 H3a.2.sd1 <- sd(food2_app$con_ER)
 H3a.2.sd2 <- sd(food2_app$inc_ER)
@@ -427,28 +674,53 @@ H3d.2.sd2 <- sd(food2_app$DER_u)
 * Calculate mean differences for measures under H1-H3
 
 ```{r}
-#Calculate mean differences for all measurements [laboratory]
-H1a.1.m_diff <- mean(nonfood1_app$diff_RT) 
+# Calculate mean differences for all measurements [laboratory]
+if (nonfood1_app$transform=="none") {
+  H1a.1.m_diff <- mean(nonfood1_app$diff_RT)
+} else {
+  H1a.1.m_diff <- mean(nonfood1_app$diff_RT_log)
+}
+
 H1b.1.m_diff <- mean(nonfood1_app$diff_ER)
 
+if (food1_app$transform=="none") {
 H2a.1.m_diff <- mean(food1_app$diff_RT)
 H2b.1.m_diff <- mean(food1_app$diff_RT_h)
 H2c.1.m_diff <- mean(food1_app$diff_RT_u)
 H2d.1.m_diff <- mean(food1_app$diff_DRT)
+} else {
+H2a.1.m_diff <- mean(food1_app$diff_RT_log)
+H2b.1.m_diff <- mean(food1_app$diff_RT_h_log)
+H2c.1.m_diff <- mean(food1_app$diff_RT_u_log)
+H2d.1.m_diff <- mean(food1_app$diff_DRT_log)  
+}
 
 H3a.1.m_diff <- mean(food1_app$diff_ER)
 H3b.1.m_diff <- mean(food1_app$diff_ER_h)
 H3c.1.m_diff <- mean(food1_app$diff_ER_u)
 H3d.1.m_diff <- mean(food1_app$diff_DER)
 
-#Calculate mean differences for all measurements [online]
-H1a.2.m_diff <- mean(nonfood2_app$diff_RT) 
+# Calculate mean differences for all measurements [online]
+
+if (nonfood2_app$transform=="none") {
+  H1a.2.m_diff <- mean(nonfood2_app$diff_RT)
+} else {
+  H1a.2.m_diff <- mean(nonfood2_app$diff_RT_log)
+}
+
 H1b.2.m_diff <- mean(nonfood2_app$diff_ER)
 
+if (food2_app$transform=="none") {
 H2a.2.m_diff <- mean(food2_app$diff_RT)
 H2b.2.m_diff <- mean(food2_app$diff_RT_h)
 H2c.2.m_diff <- mean(food2_app$diff_RT_u)
 H2d.2.m_diff <- mean(food2_app$diff_DRT)
+} else {
+H2a.2.m_diff <- mean(food2_app$diff_RT_log)
+H2b.2.m_diff <- mean(food2_app$diff_RT_h_log)
+H2c.2.m_diff <- mean(food2_app$diff_RT_u_log)
+H2d.2.m_diff <- mean(food2_app$diff_DRT_log)  
+}
 
 H3a.2.m_diff <- mean(food2_app$diff_ER)
 H3b.2.m_diff <- mean(food2_app$diff_ER_h)
@@ -458,39 +730,39 @@ H3d.2.m_diff <- mean(food2_app$diff_DER)
 
 * Calculate average standard deviation of both measures in t-test comparisons as a standardizer
 ```{r}
-#Calculate average SD for all measures [laboratory]
-H1a.1.s_av <- sqrt((H1a.1.sd1^2 + H1a.1.sd2^2)/2)
-H1b.1.s_av <- sqrt((H1b.1.sd1^2 + H1b.1.sd2^2)/2)
+# Calculate average SD for all measures [laboratory]
+H1a.1.s_av <- sqrt((H1a.1.sd1^2 + H1a.1.sd2^2) / 2)
+H1b.1.s_av <- sqrt((H1b.1.sd1^2 + H1b.1.sd2^2) / 2)
 
-H2a.1.s_av <- sqrt((H2a.1.sd1^2 + H2a.1.sd2^2)/2)
-H2b.1.s_av <- sqrt((H2b.1.sd1^2 + H2b.1.sd2^2)/2)
-H2c.1.s_av <- sqrt((H2c.1.sd1^2 + H2c.1.sd2^2)/2)
-H2d.1.s_av <- sqrt((H2d.1.sd1^2 + H2d.1.sd2^2)/2)
+H2a.1.s_av <- sqrt((H2a.1.sd1^2 + H2a.1.sd2^2) / 2)
+H2b.1.s_av <- sqrt((H2b.1.sd1^2 + H2b.1.sd2^2) / 2)
+H2c.1.s_av <- sqrt((H2c.1.sd1^2 + H2c.1.sd2^2) / 2)
+H2d.1.s_av <- sqrt((H2d.1.sd1^2 + H2d.1.sd2^2) / 2)
 
-H3a.1.s_av <- sqrt((H3a.1.sd1^2 + H3a.1.sd2^2)/2)
-H3b.1.s_av <- sqrt((H3b.1.sd1^2 + H3b.1.sd2^2)/2)
-H3c.1.s_av <- sqrt((H3c.1.sd1^2 + H3c.1.sd2^2)/2)
-H3d.1.s_av <- sqrt((H3d.1.sd1^2 + H3d.1.sd2^2)/2)
+H3a.1.s_av <- sqrt((H3a.1.sd1^2 + H3a.1.sd2^2) / 2)
+H3b.1.s_av <- sqrt((H3b.1.sd1^2 + H3b.1.sd2^2) / 2)
+H3c.1.s_av <- sqrt((H3c.1.sd1^2 + H3c.1.sd2^2) / 2)
+H3d.1.s_av <- sqrt((H3d.1.sd1^2 + H3d.1.sd2^2) / 2)
 
-#Calculate average SD for all measures [online]
-H1a.2.s_av <- sqrt((H1a.2.sd1^2 + H1a.2.sd2^2)/2)
-H1b.2.s_av <- sqrt((H1b.2.sd1^2 + H1b.2.sd2^2)/2)
+# Calculate average SD for all measures [online]
+H1a.2.s_av <- sqrt((H1a.2.sd1^2 + H1a.2.sd2^2) / 2)
+H1b.2.s_av <- sqrt((H1b.2.sd1^2 + H1b.2.sd2^2) / 2)
 
-H2a.2.s_av <- sqrt((H2a.2.sd1^2 + H2a.2.sd2^2)/2)
-H2b.2.s_av <- sqrt((H2b.2.sd1^2 + H2b.2.sd2^2)/2)
-H2c.2.s_av <- sqrt((H2c.2.sd1^2 + H2c.2.sd2^2)/2)
-H2d.2.s_av <- sqrt((H2d.2.sd1^2 + H2d.2.sd2^2)/2)
+H2a.2.s_av <- sqrt((H2a.2.sd1^2 + H2a.2.sd2^2) / 2)
+H2b.2.s_av <- sqrt((H2b.2.sd1^2 + H2b.2.sd2^2) / 2)
+H2c.2.s_av <- sqrt((H2c.2.sd1^2 + H2c.2.sd2^2) / 2)
+H2d.2.s_av <- sqrt((H2d.2.sd1^2 + H2d.2.sd2^2) / 2)
 
-H3a.2.s_av <- sqrt((H3a.2.sd1^2 + H3a.2.sd2^2)/2)
-H3b.2.s_av <- sqrt((H3b.2.sd1^2 + H3b.2.sd2^2)/2)
-H3c.2.s_av <- sqrt((H3c.2.sd1^2 + H3c.2.sd2^2)/2)
-H3d.2.s_av <- sqrt((H3d.2.sd1^2 + H3d.2.sd2^2)/2)
+H3a.2.s_av <- sqrt((H3a.2.sd1^2 + H3a.2.sd2^2) / 2)
+H3b.2.s_av <- sqrt((H3b.2.sd1^2 + H3b.2.sd2^2) / 2)
+H3c.2.s_av <- sqrt((H3c.2.sd1^2 + H3c.2.sd2^2) / 2)
+H3d.2.s_av <- sqrt((H3d.2.sd1^2 + H3d.2.sd2^2) / 2)
 ```
 
 * Calculate Cohen's dav for all comparisons (H1-H3)
 
 ```{r}
-#Cohen's dav for H1-H3 [laboratory]
+# Cohen's dav for H1-H3 [laboratory]
 H1a.1.d_av <- H1a.1.m_diff / H1a.1.s_av
 H1b.1.d_av <- H1b.1.m_diff / H1b.1.s_av
 
@@ -504,7 +776,7 @@ H3b.1.d_av <- H3b.1.m_diff / H3b.1.s_av
 H3c.1.d_av <- H3c.1.m_diff / H3c.1.s_av
 H3d.1.d_av <- H3d.1.m_diff / H3d.1.s_av
 
-#Cohen's dav for H1-H3 [online]
+# Cohen's dav for H1-H3 [online]
 H1a.2.d_av <- H1a.2.m_diff / H1a.2.s_av
 H1b.2.d_av <- H1b.2.m_diff / H1b.2.s_av
 
@@ -522,14 +794,17 @@ H3d.2.d_av <- H3d.2.m_diff / H3d.2.s_av
 
 * Calculate CIs for Cohen's dav
 ```{r}
-#Number of observations
-food_N = nrow(food1_app)
-nonfood_N = nrow(nonfood1_app)
+# Number of observations
+food1_N <- nrow(food1_app)
+nonfood1_N <- nrow(nonfood1_app)
 
-#Confidence interval
-conf_int = 0.95
+food2_N <- nrow(food2_app)
+nonfood2_N <- nrow(nonfood2_app)
 
-#T-values from performed t-tests
+# Confidence interval
+conf_int <- 0.95
+
+# T-values from performed t-tests
 H1a.1.t_val <- as.numeric(H1a.ST1[[1]]$asDF[4])
 H1b.1.t_val <- as.numeric(H1b.ST1[[1]]$asDF[4])
 
@@ -556,147 +831,179 @@ H3b.2.t_val <- as.numeric(H3b.ST2[[1]]$asDF[4])
 H3c.2.t_val <- as.numeric(H3c.ST2[[1]]$asDF[4])
 H3d.2.t_val <- as.numeric(H3d.ST2[[1]]$asDF[4])
 
-#SDs of the difference scores
-H1a.1.s_diff <- sd(nonfood1_app$diff_RT)
+# SDs of the difference scores
+if (nonfood1_app$transform=="none") {
+  H1a.1.s_diff <- sd(nonfood1_app$diff_RT)
+} else {
+   H1a.1.s_diff <- sd(nonfood1_app$diff_RT_log)
+}
+
 H1b.1.s_diff <- sd(nonfood1_app$diff_ER)
 
+if (food1_app$transform=="none") {
 H2a.1.s_diff <- sd(food1_app$diff_RT)
 H2b.1.s_diff <- sd(food1_app$diff_RT_h)
 H2c.1.s_diff <- sd(food1_app$diff_RT_u)
 H2d.1.s_diff <- sd(food1_app$diff_DRT)
+} else {
+H2a.1.s_diff <- sd(food1_app$diff_RT_log)
+H2b.1.s_diff <- sd(food1_app$diff_RT_h_log)
+H2c.1.s_diff <- sd(food1_app$diff_RT_u_log)
+H2d.1.s_diff <- sd(food1_app$diff_DRT_log)
+}
 
 H3a.1.s_diff <- sd(food1_app$diff_ER)
 H3b.1.s_diff <- sd(food1_app$diff_ER_h)
 H3c.1.s_diff <- sd(food1_app$diff_ER_u)
 H3d.1.s_diff <- sd(food1_app$diff_DER)
 
-H1a.2.s_diff <- sd(nonfood2_app$diff_RT)
+if (nonfood2_app$transform=="none") {
+  H1a.2.s_diff <- sd(nonfood2_app$diff_RT)
+} else {
+   H1a.2.s_diff <- sd(nonfood2_app$diff_RT_log)
+}
+
 H1b.2.s_diff <- sd(nonfood2_app$diff_ER)
 
+if (food2_app$transform=="none") {
 H2a.2.s_diff <- sd(food2_app$diff_RT)
 H2b.2.s_diff <- sd(food2_app$diff_RT_h)
 H2c.2.s_diff <- sd(food2_app$diff_RT_u)
 H2d.2.s_diff <- sd(food2_app$diff_DRT)
+} else {
+H2a.2.s_diff <- sd(food2_app$diff_RT_log)
+H2b.2.s_diff <- sd(food2_app$diff_RT_h_log)
+H2c.2.s_diff <- sd(food2_app$diff_RT_u_log)
+H2d.2.s_diff <- sd(food2_app$diff_DRT_log)
+}
 
 H3a.2.s_diff <- sd(food2_app$diff_ER)
 H3b.2.s_diff <- sd(food2_app$diff_ER_h)
 H3c.2.s_diff <- sd(food2_app$diff_ER_u)
 H3d.2.s_diff <- sd(food2_app$diff_DER)
 
-#Confidence limits
-H1a.1.limits <- conf.limits.nct(t.value = H1a.1.t_val, df=nonfood_N-1, conf.level = conf_int)
-H1b.1.limits <- conf.limits.nct(t.value = H1b.1.t_val, df=nonfood_N-1, conf.level = conf_int)
+# Confidence limits
+H1a.1.limits <- conf.limits.nct(t.value = H1a.1.t_val, df = nonfood1_N - 1, conf.level = conf_int)
+H1b.1.limits <- conf.limits.nct(t.value = H1b.1.t_val, df = nonfood1_N - 1, conf.level = conf_int)
 
-H2a.1.limits <- conf.limits.nct(t.value = H2a.1.t_val, df=food_N-1, conf.level = conf_int)
-H2b.1.limits <- conf.limits.nct(t.value = H2b.1.t_val, df=food_N-1, conf.level = conf_int)
-H2c.1.limits <- conf.limits.nct(t.value = H2c.1.t_val, df=food_N-1, conf.level = conf_int)
-H2d.1.limits <- conf.limits.nct(t.value = H2d.1.t_val, df=food_N-1, conf.level = conf_int)
+H2a.1.limits <- conf.limits.nct(t.value = H2a.1.t_val, df = food1_N - 1, conf.level = conf_int)
+H2b.1.limits <- conf.limits.nct(t.value = H2b.1.t_val, df = food1_N - 1, conf.level = conf_int)
+H2c.1.limits <- conf.limits.nct(t.value = H2c.1.t_val, df = food1_N - 1, conf.level = conf_int)
+H2d.1.limits <- conf.limits.nct(t.value = H2d.1.t_val, df = food1_N - 1, conf.level = conf_int)
 
-H3a.1.limits <- conf.limits.nct(t.value = H3a.1.t_val, df=food_N-1, conf.level = conf_int)
-H3b.1.limits <- conf.limits.nct(t.value = H3b.1.t_val, df=food_N-1, conf.level = conf_int)
-H3c.1.limits <- conf.limits.nct(t.value = H3c.1.t_val, df=food_N-1, conf.level = conf_int)
-H3d.1.limits <- conf.limits.nct(t.value = H3d.1.t_val, df=food_N-1, conf.level = conf_int)
+H3a.1.limits <- conf.limits.nct(t.value = H3a.1.t_val, df = food1_N - 1, conf.level = conf_int)
+H3b.1.limits <- conf.limits.nct(t.value = H3b.1.t_val, df = food1_N - 1, conf.level = conf_int)
+H3c.1.limits <- conf.limits.nct(t.value = H3c.1.t_val, df = food1_N - 1, conf.level = conf_int)
+H3d.1.limits <- conf.limits.nct(t.value = H3d.1.t_val, df = food1_N - 1, conf.level = conf_int)
 
-H1a.2.limits <- conf.limits.nct(t.value = H1a.2.t_val, df=nonfood_N-1, conf.level = conf_int)
-H1b.2.limits <- conf.limits.nct(t.value = H1b.2.t_val, df=nonfood_N-1, conf.level = conf_int)
+H1a.2.limits <- conf.limits.nct(t.value = H1a.2.t_val, df = nonfood2_N - 1, conf.level = conf_int)
+H1b.2.limits <- conf.limits.nct(t.value = H1b.2.t_val, df = nonfood2_N - 1, conf.level = conf_int)
 
-H2a.2.limits <- conf.limits.nct(t.value = H2a.2.t_val, df=food_N-1, conf.level = conf_int)
-H2b.2.limits <- conf.limits.nct(t.value = H2b.2.t_val, df=food_N-1, conf.level = conf_int)
-H2c.2.limits <- conf.limits.nct(t.value = H2c.2.t_val, df=food_N-1, conf.level = conf_int)
-H2d.2.limits <- conf.limits.nct(t.value = H2d.2.t_val, df=food_N-1, conf.level = conf_int)
+H2a.2.limits <- conf.limits.nct(t.value = H2a.2.t_val, df = food2_N - 1, conf.level = conf_int)
+H2b.2.limits <- conf.limits.nct(t.value = H2b.2.t_val, df = food2_N - 1, conf.level = conf_int)
+H2c.2.limits <- conf.limits.nct(t.value = H2c.2.t_val, df = food2_N - 1, conf.level = conf_int)
+H2d.2.limits <- conf.limits.nct(t.value = H2d.2.t_val, df = food2_N - 1, conf.level = conf_int)
 
-H3a.2.limits <- conf.limits.nct(t.value = H3a.2.t_val, df=food_N-1, conf.level = conf_int)
-H3b.2.limits <- conf.limits.nct(t.value = H3b.2.t_val, df=food_N-1, conf.level = conf_int)
-H3c.2.limits <- conf.limits.nct(t.value = H3c.2.t_val, df=food_N-1, conf.level = conf_int)
-H3d.2.limits <- conf.limits.nct(t.value = H3d.2.t_val, df=food_N-1, conf.level = conf_int)
+H3a.2.limits <- conf.limits.nct(t.value = H3a.2.t_val, df = food2_N - 1, conf.level = conf_int)
+H3b.2.limits <- conf.limits.nct(t.value = H3b.2.t_val, df = food2_N - 1, conf.level = conf_int)
+H3c.2.limits <- conf.limits.nct(t.value = H3c.2.t_val, df = food2_N - 1, conf.level = conf_int)
+H3d.2.limits <- conf.limits.nct(t.value = H3d.2.t_val, df = food2_N - 1, conf.level = conf_int)
 
-#Lower and upper limits for Cohen's dav
-#lci: lower CI
-#uci: upper CI
+# Lower and upper limits for Cohen's dav
+# lci: lower CI
+# uci: upper CI
 
-H1a.1.d_av_lci <- H1a.1.limits$Lower.Limit * H1a.1.s_diff / (H1a.1.s_av * sqrt(nonfood_N))
-H1a.1.d_av_uci <- H1a.1.limits$Upper.Limit * H1a.1.s_diff / (H1a.1.s_av * sqrt(nonfood_N))
+H1a.1.d_av_lci <- H1a.1.limits$Lower.Limit * H1a.1.s_diff / (H1a.1.s_av * sqrt(nonfood1_N))
+H1a.1.d_av_uci <- H1a.1.limits$Upper.Limit * H1a.1.s_diff / (H1a.1.s_av * sqrt(nonfood1_N))
 
-H1b.1.d_av_lci <- H1b.1.limits$Lower.Limit * H1b.1.s_diff / (H1b.1.s_av * sqrt(nonfood_N))
-H1b.1.d_av_uci <- H1b.1.limits$Upper.Limit * H1b.1.s_diff / (H1b.1.s_av * sqrt(nonfood_N))
+H1b.1.d_av_lci <- H1b.1.limits$Lower.Limit * H1b.1.s_diff / (H1b.1.s_av * sqrt(nonfood1_N))
+H1b.1.d_av_uci <- H1b.1.limits$Upper.Limit * H1b.1.s_diff / (H1b.1.s_av * sqrt(nonfood1_N))
 
-H2a.1.d_av_lci <- H2a.1.limits$Lower.Limit * H2a.1.s_diff / (H2a.1.s_av * sqrt(food_N))
-H2a.1.d_av_uci <- H2a.1.limits$Upper.Limit * H2a.1.s_diff / (H2a.1.s_av * sqrt(food_N))
+H2a.1.d_av_lci <- H2a.1.limits$Lower.Limit * H2a.1.s_diff / (H2a.1.s_av * sqrt(food1_N))
+H2a.1.d_av_uci <- H2a.1.limits$Upper.Limit * H2a.1.s_diff / (H2a.1.s_av * sqrt(food1_N))
 
-H2b.1.d_av_lci <- H2b.1.limits$Lower.Limit * H2b.1.s_diff / (H2b.1.s_av * sqrt(food_N))
-H2b.1.d_av_uci <- H2b.1.limits$Upper.Limit * H2b.1.s_diff / (H2b.1.s_av * sqrt(food_N))
+H2b.1.d_av_lci <- H2b.1.limits$Lower.Limit * H2b.1.s_diff / (H2b.1.s_av * sqrt(food1_N))
+H2b.1.d_av_uci <- H2b.1.limits$Upper.Limit * H2b.1.s_diff / (H2b.1.s_av * sqrt(food1_N))
 
-H2c.1.d_av_lci <- H2c.1.limits$Lower.Limit * H2c.1.s_diff / (H2c.1.s_av * sqrt(food_N))
-H2c.1.d_av_uci <- H2c.1.limits$Upper.Limit * H2c.1.s_diff / (H2c.1.s_av * sqrt(food_N))
+H2c.1.d_av_lci <- H2c.1.limits$Lower.Limit * H2c.1.s_diff / (H2c.1.s_av * sqrt(food1_N))
+H2c.1.d_av_uci <- H2c.1.limits$Upper.Limit * H2c.1.s_diff / (H2c.1.s_av * sqrt(food1_N))
 
-H2d.1.d_av_lci <- H2d.1.limits$Lower.Limit * H2d.1.s_diff / (H2d.1.s_av * sqrt(food_N))
-H2d.1.d_av_uci <- H2d.1.limits$Upper.Limit * H2d.1.s_diff / (H2d.1.s_av * sqrt(food_N))
+H2d.1.d_av_lci <- H2d.1.limits$Lower.Limit * H2d.1.s_diff / (H2d.1.s_av * sqrt(food1_N))
+H2d.1.d_av_uci <- H2d.1.limits$Upper.Limit * H2d.1.s_diff / (H2d.1.s_av * sqrt(food1_N))
 
-H3a.1.d_av_lci <- H3a.1.limits$Lower.Limit * H3a.1.s_diff / (H3a.1.s_av * sqrt(food_N))
-H3a.1.d_av_uci <- H3a.1.limits$Upper.Limit * H3a.1.s_diff / (H3a.1.s_av * sqrt(food_N))
+H3a.1.d_av_lci <- H3a.1.limits$Lower.Limit * H3a.1.s_diff / (H3a.1.s_av * sqrt(food1_N))
+H3a.1.d_av_uci <- H3a.1.limits$Upper.Limit * H3a.1.s_diff / (H3a.1.s_av * sqrt(food1_N))
 
-H3b.1.d_av_lci <- H3b.1.limits$Lower.Limit * H3b.1.s_diff / (H3b.1.s_av * sqrt(food_N))
-H3b.1.d_av_uci <- H3b.1.limits$Upper.Limit * H3b.1.s_diff / (H3b.1.s_av * sqrt(food_N))
+H3b.1.d_av_lci <- H3b.1.limits$Lower.Limit * H3b.1.s_diff / (H3b.1.s_av * sqrt(food1_N))
+H3b.1.d_av_uci <- H3b.1.limits$Upper.Limit * H3b.1.s_diff / (H3b.1.s_av * sqrt(food1_N))
 
-H3c.1.d_av_lci <- H3c.1.limits$Lower.Limit * H3c.1.s_diff / (H3c.1.s_av * sqrt(food_N))
-H3c.1.d_av_uci <- H3c.1.limits$Upper.Limit * H3c.1.s_diff / (H3c.1.s_av * sqrt(food_N))
+H3c.1.d_av_lci <- H3c.1.limits$Lower.Limit * H3c.1.s_diff / (H3c.1.s_av * sqrt(food1_N))
+H3c.1.d_av_uci <- H3c.1.limits$Upper.Limit * H3c.1.s_diff / (H3c.1.s_av * sqrt(food1_N))
 
-H3d.1.d_av_lci <- H3d.1.limits$Lower.Limit * H3d.1.s_diff / (H3d.1.s_av * sqrt(food_N))
-H3d.1.d_av_uci <- H3d.1.limits$Upper.Limit * H3d.1.s_diff / (H3d.1.s_av * sqrt(food_N))
+H3d.1.d_av_lci <- H3d.1.limits$Lower.Limit * H3d.1.s_diff / (H3d.1.s_av * sqrt(food1_N))
+H3d.1.d_av_uci <- H3d.1.limits$Upper.Limit * H3d.1.s_diff / (H3d.1.s_av * sqrt(food1_N))
 
 
-H1a.2.d_av_lci <- H1a.2.limits$Lower.Limit * H1a.2.s_diff / (H1a.2.s_av * sqrt(nonfood_N))
-H1a.2.d_av_uci <- H1a.2.limits$Upper.Limit * H1a.2.s_diff / (H1a.2.s_av * sqrt(nonfood_N))
+H1a.2.d_av_lci <- H1a.2.limits$Lower.Limit * H1a.2.s_diff / (H1a.2.s_av * sqrt(nonfood2_N))
+H1a.2.d_av_uci <- H1a.2.limits$Upper.Limit * H1a.2.s_diff / (H1a.2.s_av * sqrt(nonfood2_N))
 
-H1b.2.d_av_lci <- H1b.2.limits$Lower.Limit * H1b.2.s_diff / (H1b.2.s_av * sqrt(nonfood_N))
-H1b.2.d_av_uci <- H1b.2.limits$Upper.Limit * H1b.2.s_diff / (H1b.2.s_av * sqrt(nonfood_N))
+H1b.2.d_av_lci <- H1b.2.limits$Lower.Limit * H1b.2.s_diff / (H1b.2.s_av * sqrt(nonfood2_N))
+H1b.2.d_av_uci <- H1b.2.limits$Upper.Limit * H1b.2.s_diff / (H1b.2.s_av * sqrt(nonfood2_N))
 
-H2a.2.d_av_lci <- H2a.2.limits$Lower.Limit * H2a.2.s_diff / (H2a.2.s_av * sqrt(food_N))
-H2a.2.d_av_uci <- H2a.2.limits$Upper.Limit * H2a.2.s_diff / (H2a.2.s_av * sqrt(food_N))
+H2a.2.d_av_lci <- H2a.2.limits$Lower.Limit * H2a.2.s_diff / (H2a.2.s_av * sqrt(food2_N))
+H2a.2.d_av_uci <- H2a.2.limits$Upper.Limit * H2a.2.s_diff / (H2a.2.s_av * sqrt(food2_N))
 
-H2b.2.d_av_lci <- H2b.2.limits$Lower.Limit * H2b.2.s_diff / (H2b.2.s_av * sqrt(food_N))
-H2b.2.d_av_uci <- H2b.2.limits$Upper.Limit * H2b.2.s_diff / (H2b.2.s_av * sqrt(food_N))
+H2b.2.d_av_lci <- H2b.2.limits$Lower.Limit * H2b.2.s_diff / (H2b.2.s_av * sqrt(food2_N))
+H2b.2.d_av_uci <- H2b.2.limits$Upper.Limit * H2b.2.s_diff / (H2b.2.s_av * sqrt(food2_N))
 
-H2c.2.d_av_lci <- H2c.2.limits$Lower.Limit * H2c.2.s_diff / (H2c.2.s_av * sqrt(food_N))
-H2c.2.d_av_uci <- H2c.2.limits$Upper.Limit * H2c.2.s_diff / (H2c.2.s_av * sqrt(food_N))
+H2c.2.d_av_lci <- H2c.2.limits$Lower.Limit * H2c.2.s_diff / (H2c.2.s_av * sqrt(food2_N))
+H2c.2.d_av_uci <- H2c.2.limits$Upper.Limit * H2c.2.s_diff / (H2c.2.s_av * sqrt(food2_N))
 
-H2d.2.d_av_lci <- H2d.2.limits$Lower.Limit * H2d.2.s_diff / (H2d.2.s_av * sqrt(food_N))
-H2d.2.d_av_uci <- H2d.2.limits$Upper.Limit * H2d.2.s_diff / (H2d.2.s_av * sqrt(food_N))
+H2d.2.d_av_lci <- H2d.2.limits$Lower.Limit * H2d.2.s_diff / (H2d.2.s_av * sqrt(food2_N))
+H2d.2.d_av_uci <- H2d.2.limits$Upper.Limit * H2d.2.s_diff / (H2d.2.s_av * sqrt(food2_N))
 
-H3a.2.d_av_lci <- H3a.2.limits$Lower.Limit * H3a.2.s_diff / (H3a.2.s_av * sqrt(food_N))
-H3a.2.d_av_uci <- H3a.2.limits$Upper.Limit * H3a.2.s_diff / (H3a.2.s_av * sqrt(food_N))
+H3a.2.d_av_lci <- H3a.2.limits$Lower.Limit * H3a.2.s_diff / (H3a.2.s_av * sqrt(food2_N))
+H3a.2.d_av_uci <- H3a.2.limits$Upper.Limit * H3a.2.s_diff / (H3a.2.s_av * sqrt(food2_N))
 
-H3b.2.d_av_lci <- H3b.2.limits$Lower.Limit * H3b.2.s_diff / (H3b.2.s_av * sqrt(food_N))
-H3b.2.d_av_uci <- H3b.2.limits$Upper.Limit * H3b.2.s_diff / (H3b.2.s_av * sqrt(food_N))
+H3b.2.d_av_lci <- H3b.2.limits$Lower.Limit * H3b.2.s_diff / (H3b.2.s_av * sqrt(food2_N))
+H3b.2.d_av_uci <- H3b.2.limits$Upper.Limit * H3b.2.s_diff / (H3b.2.s_av * sqrt(food2_N))
 
-H3c.2.d_av_lci <- H3c.2.limits$Lower.Limit * H3c.2.s_diff / (H3c.2.s_av * sqrt(food_N))
-H3c.2.d_av_uci <- H3c.2.limits$Upper.Limit * H3c.2.s_diff / (H3c.2.s_av * sqrt(food_N))
+H3c.2.d_av_lci <- H3c.2.limits$Lower.Limit * H3c.2.s_diff / (H3c.2.s_av * sqrt(food2_N))
+H3c.2.d_av_uci <- H3c.2.limits$Upper.Limit * H3c.2.s_diff / (H3c.2.s_av * sqrt(food2_N))
 
-H3d.2.d_av_lci <- H3d.2.limits$Lower.Limit * H3d.2.s_diff / (H3d.2.s_av * sqrt(food_N))
-H3d.2.d_av_uci <- H3d.2.limits$Upper.Limit * H3d.2.s_diff / (H3d.2.s_av * sqrt(food_N))
+H3d.2.d_av_lci <- H3d.2.limits$Lower.Limit * H3d.2.s_diff / (H3d.2.s_av * sqrt(food2_N))
+H3d.2.d_av_uci <- H3d.2.limits$Upper.Limit * H3d.2.s_diff / (H3d.2.s_av * sqrt(food2_N))
 ```
 
 * Put all results in a dataframe for reporting purposes
 
 ```{r}
-effect_sizes <- as.data.frame(matrix(nrow=20, ncol=4))
+effect_sizes <- as.data.frame(matrix(nrow = 20, ncol = 4))
 names(effect_sizes) <- c("Hypothesis", "Cohen's dav", "Lower CI", "Upper CI")
 
-effect_sizes$Hypothesis <- c("H1a.1", "H1b.1", "H2a.1", "H2b.1", "H2c.1", "H2d.1", "H3a.1", "H3b.1","H3c.1", "H3d.1",
-                             "H1a.2", "H1b.2", "H2a.2", "H2b.2", "H2c.2", "H2d.2", "H3a.2", "H3b.2","H3c.2", "H3d.2")
+effect_sizes$Hypothesis <- c(
+  "H1a.1", "H1b.1", "H2a.1", "H2b.1", "H2c.1", "H2d.1", "H3a.1", "H3b.1", "H3c.1", "H3d.1",
+  "H1a.2", "H1b.2", "H2a.2", "H2b.2", "H2c.2", "H2d.2", "H3a.2", "H3b.2", "H3c.2", "H3d.2"
+)
 
-effect_sizes$`Cohen's dav` <- c(H1a.1.d_av, H1b.1.d_av, H2a.1.d_av, H2b.1.d_av, H2c.1.d_av, H2d.1.d_av,
-                               H3a.1.d_av, H3b.1.d_av, H3c.1.d_av, H3d.1.d_av,
-                               H1a.2.d_av, H1b.2.d_av, H2a.2.d_av, H2b.2.d_av, H2c.2.d_av, H2d.2.d_av,
-                               H3a.2.d_av, H3b.2.d_av, H3c.2.d_av, H3d.2.d_av)
+effect_sizes$`Cohen's dav` <- c(
+  H1a.1.d_av, H1b.1.d_av, H2a.1.d_av, H2b.1.d_av, H2c.1.d_av, H2d.1.d_av,
+  H3a.1.d_av, H3b.1.d_av, H3c.1.d_av, H3d.1.d_av,
+  H1a.2.d_av, H1b.2.d_av, H2a.2.d_av, H2b.2.d_av, H2c.2.d_av, H2d.2.d_av,
+  H3a.2.d_av, H3b.2.d_av, H3c.2.d_av, H3d.2.d_av
+)
 
-effect_sizes$`Lower CI` <- c(H1a.1.d_av_lci, H1b.1.d_av_lci, H2a.1.d_av_lci, H2b.1.d_av_lci, H2c.1.d_av_lci, H2d.1.d_av_lci,
-                             H3a.1.d_av_lci, H3b.1.d_av_lci, H3c.1.d_av_lci, H3d.1.d_av_lci,
-                             H1a.2.d_av_lci, H1b.2.d_av_lci, H2a.2.d_av_lci, H2b.2.d_av_lci, H2c.2.d_av_lci, H2d.2.d_av_lci,
-                             H3a.2.d_av_lci, H3b.2.d_av_lci, H3c.2.d_av_lci, H3d.2.d_av_lci)
+effect_sizes$`Lower CI` <- c(
+  H1a.1.d_av_lci, H1b.1.d_av_lci, H2a.1.d_av_lci, H2b.1.d_av_lci, H2c.1.d_av_lci, H2d.1.d_av_lci,
+  H3a.1.d_av_lci, H3b.1.d_av_lci, H3c.1.d_av_lci, H3d.1.d_av_lci,
+  H1a.2.d_av_lci, H1b.2.d_av_lci, H2a.2.d_av_lci, H2b.2.d_av_lci, H2c.2.d_av_lci, H2d.2.d_av_lci,
+  H3a.2.d_av_lci, H3b.2.d_av_lci, H3c.2.d_av_lci, H3d.2.d_av_lci
+)
 
-effect_sizes$`Upper CI` <- c(H1a.1.d_av_uci, H1b.1.d_av_uci, H2a.1.d_av_uci, H2b.1.d_av_uci, H2c.1.d_av_uci, H2d.1.d_av_uci,
-                             H3a.1.d_av_uci, H3b.1.d_av_uci, H3c.1.d_av_uci, H3d.1.d_av_uci,
-                             H1a.2.d_av_uci, H1b.2.d_av_uci, H2a.2.d_av_uci, H2b.2.d_av_uci, H2c.2.d_av_uci, H2d.2.d_av_uci,
-                             H3a.2.d_av_uci, H3b.2.d_av_uci, H3c.2.d_av_uci, H3d.2.d_av_uci)
+effect_sizes$`Upper CI` <- c(
+  H1a.1.d_av_uci, H1b.1.d_av_uci, H2a.1.d_av_uci, H2b.1.d_av_uci, H2c.1.d_av_uci, H2d.1.d_av_uci,
+  H3a.1.d_av_uci, H3b.1.d_av_uci, H3c.1.d_av_uci, H3d.1.d_av_uci,
+  H1a.2.d_av_uci, H1b.2.d_av_uci, H2a.2.d_av_uci, H2b.2.d_av_uci, H2c.2.d_av_uci, H2d.2.d_av_uci,
+  H3a.2.d_av_uci, H3b.2.d_av_uci, H3c.2.d_av_uci, H3d.2.d_av_uci
+)
 ```

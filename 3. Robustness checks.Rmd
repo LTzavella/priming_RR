@@ -127,9 +127,9 @@ H3d.BF1_S1
 
 ```{r}
 #Bayesian correlation pairs for H4 [food choices]
-H4a.BF1_S1 <- correlationBF(x=FCT_full1_S1$DRT_h, y=FCT_full1_S1$p.mh, rscale = 1, nullInterval = c(0, Inf))
-H4b.BF1_S1 <- correlationBF(x=FCT_full1_S1$DRT_u, y=FCT_full1_S1$p.mu, rscale = 1, nullInterval = c(0, Inf))
-H4c.BF1_S1 <- correlationBF(x=FCT_full1_S1$DRT_hml, y=FCT_full1_S1$p.um, rscale = 1, nullInterval = c(0, Inf))
+H4a.BF1_S1 <- correlationBF(x=FCT_full1_S1$DRT_h, y=FCT_full1_S1$p.mh, rscale = 1, nullInterval = c(0, 1))
+H4b.BF1_S1 <- correlationBF(x=FCT_full1_S1$DRT_u, y=FCT_full1_S1$p.mu, rscale = 1, nullInterval = c(0, 1))
+H4c.BF1_S1 <- correlationBF(x=FCT_full1_S1$DRT_hml, y=FCT_full1_S1$p.um, rscale = 1, nullInterval = c(0, 1))
 ```
 
 ```{r}
@@ -210,9 +210,9 @@ H3d.BF2_S1
 
 ```{r}
 #Bayesian correlation pairs for H4 [food choices]
-H4a.BF2_S1 <- correlationBF(x=FCT_full2_S$DRT_h, y=FCT_full2_S$p.mh, rscale = 1, nullInterval = c(0, Inf))
-H4b.BF2_S1 <- correlationBF(x=FCT_full2_S$DRT_u, y=FCT_full2_S$p.mu, rscale = 1, nullInterval = c(0, Inf))
-H4c.BF2_S1 <- correlationBF(x=FCT_full2_S$DRT_hml, y=FCT_full2_S$p.um, rscale = 1, nullInterval = c(0, Inf))
+H4a.BF2_S1 <- correlationBF(x=FCT_full2_S$DRT_h, y=FCT_full2_S$p.mh, rscale = 1, nullInterval = c(0, 1))
+H4b.BF2_S1 <- correlationBF(x=FCT_full2_S$DRT_u, y=FCT_full2_S$p.mu, rscale = 1, nullInterval = c(0, 1))
+H4c.BF2_S1 <- correlationBF(x=FCT_full2_S$DRT_hml, y=FCT_full2_S$p.um, rscale = 1, nullInterval = c(0, 1))
 ```
 
 ```{r}
@@ -272,17 +272,17 @@ nonfood2_RT2 <- lapply(nonfood2_cor, function(x) x<- sdTrim(x, minRT=0, sd=2.5, 
 
 ```{r}
 #Exclude participants who had mean error rates > 0.4
-nonfood1_RT1 <- nonfood1_RT1[sapply(nonfood1_RT1, function(x) any(x$subject %in% ER1_incl))]
-nonfood2_RT1 <- nonfood2_RT1[sapply(nonfood2_RT1, function(x) any(x$subject %in% ER1_incl))]
+nonfood1_RT1 <- nonfood1_RT1[sapply(nonfood1_RT1, function(x) any(x$participant %in% ER1_incl))]
+nonfood2_RT1 <- nonfood2_RT1[sapply(nonfood2_RT1, function(x) any(x$participant %in% ER2_incl))]
 
-nonfood1_RT2 <- nonfood1_RT2[sapply(nonfood1_RT2, function(x) any(x$subject %in% ER1_incl))]
-nonfood2_RT2 <- nonfood2_RT2[sapply(nonfood2_RT2, function(x) any(x$subject %in% ER1_incl))]
+nonfood1_RT2 <- nonfood1_RT2[sapply(nonfood1_RT2, function(x) any(x$participant %in% ER1_incl))]
+nonfood2_RT2 <- nonfood2_RT2[sapply(nonfood2_RT2, function(x) any(x$participant %in% ER2_incl))]
 
-food1_RT1 <- food1_RT1[sapply(food1_RT1, function(x) any(x$subject %in% ER1_incl))]
-food2_RT1 <- food2_RT1[sapply(food2_RT1, function(x) any(x$subject %in% ER1_incl))]
+food1_RT1 <- food1_RT1[sapply(food1_RT1, function(x) any(x$participant %in% ER1_incl))]
+food2_RT1 <- food2_RT1[sapply(food2_RT1, function(x) any(x$participant %in% ER2_incl))]
 
-food1_RT2 <- food1_RT2[sapply(food1_RT2, function(x) any(x$subject %in% ER1_incl))]
-food2_RT2 <- food2_RT2[sapply(food2_RT2, function(x) any(x$subject %in% ER1_incl))]
+food1_RT2 <- food1_RT2[sapply(food1_RT2, function(x) any(x$participant %in% ER1_incl))]
+food2_RT2 <- food2_RT2[sapply(food2_RT2, function(x) any(x$participant %in% ER2_incl))]
 
 #Mean RTs of correct trials from non-food trials
 nonfood1_RT1 <- ldply(nonfood1_RT1, NF_means)
@@ -418,13 +418,13 @@ H2d.BF1_S3
 
 ```{r}
 #Bayesian correlation pairs for H4 [food choices]
-H4a.BF1_S2 <- correlationBF(x=FCT_full1_S2$DRT_h, y=FCT_full1_S2$p.mh, rscale = 1, nullInterval = c(0, Inf))
-H4b.BF1_S2 <- correlationBF(x=FCT_full1_S2$DRT_u, y=FCT_full1_S2$p.mu, rscale = 1, nullInterval = c(0, Inf))
-H4c.BF1_S2 <- correlationBF(x=FCT_full1_S2$DRT_hml, y=FCT_full1_S2$p.um, rscale = 1, nullInterval = c(0, Inf))
+H4a.BF1_S2 <- correlationBF(x=FCT_full1_S2$DRT_h, y=FCT_full1_S2$p.mh, rscale = 1, nullInterval = c(0, 1))
+H4b.BF1_S2 <- correlationBF(x=FCT_full1_S2$DRT_u, y=FCT_full1_S2$p.mu, rscale = 1, nullInterval = c(0, 1))
+H4c.BF1_S2 <- correlationBF(x=FCT_full1_S2$DRT_hml, y=FCT_full1_S2$p.um, rscale = 1, nullInterval = c(0, 1))
 
-H4a.BF1_S3 <- correlationBF(x=FCT_full1_S3$DRT_h, y=FCT_full1_S3$p.mh, rscale = 1, nullInterval = c(0, Inf))
-H4b.BF1_S3 <- correlationBF(x=FCT_full1_S3$DRT_u, y=FCT_full1_S3$p.mu, rscale = 1, nullInterval = c(0, Inf))
-H4c.BF1_S3 <- correlationBF(x=FCT_full1_S3$DRT_hml, y=FCT_full1_S3$p.um, rscale = 1, nullInterval = c(0, Inf))
+H4a.BF1_S3 <- correlationBF(x=FCT_full1_S3$DRT_h, y=FCT_full1_S3$p.mh, rscale = 1, nullInterval = c(0, 1))
+H4b.BF1_S3 <- correlationBF(x=FCT_full1_S3$DRT_u, y=FCT_full1_S3$p.mu, rscale = 1, nullInterval = c(0, 1))
+H4c.BF1_S3 <- correlationBF(x=FCT_full1_S3$DRT_hml, y=FCT_full1_S3$p.um, rscale = 1, nullInterval = c(0, 1))
 ```
 
 ```{r}
@@ -514,13 +514,13 @@ H2d.BF2_S3
 
 ```{r}
 #Bayesian correlation pairs for H4 [food choices]
-H4a.BF2_S2 <- correlationBF(x=FCT_full2_S2$DRT_h, y=FCT_full2_S2$p.mh, rscale = 1, nullInterval = c(0, Inf))
-H4b.BF2_S2 <- correlationBF(x=FCT_full2_S2$DRT_u, y=FCT_full2_S2$p.mu, rscale = 1, nullInterval = c(0, Inf))
-H4c.BF2_S2 <- correlationBF(x=FCT_full2_S2$DRT_hml, y=FCT_full2_S2$p.um, rscale = 1, nullInterval = c(0, Inf))
+H4a.BF2_S2 <- correlationBF(x=FCT_full2_S2$DRT_h, y=FCT_full2_S2$p.mh, rscale = 1, nullInterval = c(0, 1))
+H4b.BF2_S2 <- correlationBF(x=FCT_full2_S2$DRT_u, y=FCT_full2_S2$p.mu, rscale = 1, nullInterval = c(0, 1))
+H4c.BF2_S2 <- correlationBF(x=FCT_full2_S2$DRT_hml, y=FCT_full2_S2$p.um, rscale = 1, nullInterval = c(0, 1))
 
-H4a.BF2_S3 <- correlationBF(x=FCT_full2_S3$DRT_h, y=FCT_full2_S3$p.mh, rscale = 1, nullInterval = c(0, Inf))
-H4b.BF2_S3 <- correlationBF(x=FCT_full2_S3$DRT_u, y=FCT_full2_S3$p.mu, rscale = 1, nullInterval = c(0, Inf))
-H4c.BF2_S3 <- correlationBF(x=FCT_full2_S3$DRT_hml, y=FCT_full2_S3$p.um, rscale = 1, nullInterval = c(0, Inf))
+H4a.BF2_S3 <- correlationBF(x=FCT_full2_S3$DRT_h, y=FCT_full2_S3$p.mh, rscale = 1, nullInterval = c(0, 1))
+H4b.BF2_S3 <- correlationBF(x=FCT_full2_S3$DRT_u, y=FCT_full2_S3$p.mu, rscale = 1, nullInterval = c(0, 1))
+H4c.BF2_S3 <- correlationBF(x=FCT_full2_S3$DRT_hml, y=FCT_full2_S3$p.um, rscale = 1, nullInterval = c(0, 1))
 ```
 
 ```{r}
