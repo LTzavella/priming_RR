@@ -7,24 +7,30 @@ output: html_document
 
 #### Set up R environment and import data files 
 
-> The scripts for analyses are designed to be run in sequence:
-  1. Pre-processing pipeline.Rmd
-  2. Pre-registered analyses.Rmd
-  3. Robustness checks.Rmd
+The scripts for analyses are designed to be run in sequence:
+ 1. Pre-processing pipeline.Rmd
+ 2. Pre-registered analyses.Rmd
+ 3. Robustness checks.Rmd
+ 4. Reporting.Rmd
+ 
   
-> The scripts should be run in a session open under 'Food_priming.RProj'
-> The R environment will include a number of data objects and functions after pre-processing the data.
-> These can later be used in analyses scripts. However, if you want to revisit analyses at a later point
-  you could save the R environment using the code below.
-  save(list = ls(all.names = TRUE), file = here("R_Objects.RData"), envir = .GlobalEnv)
+The scripts should be run in a session open under 'Food_priming.RProj'
+The R environment will include a number of data objects and functions after pre-processing the data.
+
+These can later be used in analyses scripts. However, if you want to revisit analyses at a later point you could save the R environment using the code below.
+
+>  save(list = ls(all.names = TRUE), file = here("R_Objects.RData"), envir = .GlobalEnv)
 
 
 ```{r message=FALSE}
-# Required R packages are shown below. 
+# Required R packages are shown below.
 # Please note that the current script has beeen developed under R version 3.4.3
+#
 required.packages <- c("BayesFactor", "plyr", "here", "data.table", "jmv", "trimr", "MBESS")
-new.packages <- required.packages[!(required.packages %in% installed.packages()[,"Package"])]
-if(length(new.packages)>0) {install.packages(required.packages)}
+new.packages <- required.packages[!(required.packages %in% installed.packages()[, "Package"])]
+if (length(new.packages) > 0) {
+  install.packages(required.packages)
+}
 
 require(BayesFactor)
 require(plyr)
@@ -38,26 +44,30 @@ require(MBESS)
 * Read csv files from the specified directory and create data lists
 
 ```{r}
-#Data collected in the laboratory 
-lab<- list.files(here("Lab_data"), all.files = TRUE, full.names = FALSE, no.. = TRUE, pattern = "\\.iqdat$")
+# Data collected in the laboratory
+lab <- list.files(here("Lab_data"), all.files = TRUE, full.names = FALSE, no.. = TRUE, pattern = "\\.csv$")
 
-# Data collected online 
-online <- list.files(here("Online_data"), all.files = TRUE, full.names = FALSE, no.. = TRUE, pattern = "\\.iqdat$")
+# Data collected online
+online <- list.files(here("Online_data"), all.files = TRUE, full.names = FALSE, no.. = TRUE, pattern = "\\.csv$")
 
-#Save data files
-data1<- lapply(here("Lab_data", lab), function(x) {fread(x)})
+# Save data files
+data1 <- lapply(here("Lab_data", lab), function(x) {
+  fread(x)
+})
 data1 <- lapply(data1, function(x) as.data.frame(x))
 
-data2 <- lapply(here("Online_data", online), function(x) {fread(x)})
+data2 <- lapply(here("Online_data", online), function(x) {
+  fread(x)
+})
 data2 <- lapply(data2, function(x) as.data.frame(x))
 
-#Assign names to the list elements (subject IDs). This is important for created datasets of descriptive statistics. 
-#Without list names, there will be no IDs the created data sets.  
+# Assign names to the list elements (subject IDs). This is important for created datasets of descriptive statistics.
+# Without list names, there will be no IDs the created data sets.
 
-subs1 <- lapply(data1, function(x) x[1,1])
+subs1 <- lapply(data1, function(x) x[1, 1])
 names(data1) <- subs1
 
-subs2 <- lapply(data2, function(x) x[1,1])
+subs2 <- lapply(data2, function(x) x[1, 1])
 names(data2) <- subs2
 ```
 
@@ -71,20 +81,22 @@ source("Descriptive_functions.R")
 * Process the list of dataframes to select only data from the APP
 
 ```{r}
-#Select APP blocks and columns of interest
+# Select APP blocks and columns of interest
 
-APP1 <- lapply(data1, subset, (blockcode=="APP1" | blockcode=="APP2"), select=c(1:15,28,30,32))
-APP2 <- lapply(data2, subset, (blockcode=="APP1" | blockcode=="APP2"), select=c(1:15,28,30,32))
+APP1 <- lapply(data1, subset, (blockcode == "APP1" | blockcode == "APP2"), select = c(1:15, 28, 30, 32))
+APP2 <- lapply(data2, subset, (blockcode == "APP1" | blockcode == "APP2"), select = c(1:15, 28, 30, 32))
 
-#Remove factor levels that are no longer used 
+# Remove factor levels that are no longer used
 
 APP1 <- lapply(APP1, droplevels)
 APP2 <- lapply(APP2, droplevels)
 
-#Change the column names 
+# Change the column names
 
-names <- c("participant","block","trial","response","rt","trial_n","liking","block_n","accuracy",
-           "congruence","healthiness","prime_type","prime","target","category","onset2","onset3","onset4")
+names <- c(
+  "participant", "block", "trial", "response", "rt", "trial_n", "liking", "block_n", "accuracy",
+  "congruence", "healthiness", "prime_type", "prime", "target", "category", "onset2", "onset3", "onset4"
+)
 
 APP1 <- lapply(APP1, setNames, nm = names)
 APP2 <- lapply(APP2, setNames, nm = names)
@@ -97,27 +109,27 @@ APP2 <- lapply(APP2, setNames, nm = names)
 > These trials will be removed from analyses. However, if a participant has more than 25% of trials with timing errors, they will then be excluded from all analyses. 
   
 ```{r}
-#Create variables for prime and mask duration (ms)
+# Create variables for prime and mask duration (ms)
 
-APP1<- lapply(APP1, transform, prime_ms = onset3-onset2)
-APP1<- lapply(APP1, transform, mask_ms = onset4-onset3)
+APP1 <- lapply(APP1, transform, prime_ms = onset3 - onset2)
+APP1 <- lapply(APP1, transform, mask_ms = onset4 - onset3)
 
-APP2<- lapply(APP2, transform, prime_ms = onset3-onset2)
-APP2<- lapply(APP2, transform, mask_ms = onset4-onset3)
+APP2 <- lapply(APP2, transform, prime_ms = onset3 - onset2)
+APP2 <- lapply(APP2, transform, mask_ms = onset4 - onset3)
 
-#Create variable for timing errors- 1= exclude, 0=include
-APP1 <- lapply(APP1, transform, timing = as.integer(ifelse(prime_ms>=283|mask_ms>=67, "1", "0")))
-APP2 <- lapply(APP2, transform, timing = as.integer(ifelse(prime_ms>=283|mask_ms>=67, "1", "0")))
+# Create variable for timing errors- 1= exclude, 0=include
+APP1 <- lapply(APP1, transform, timing = as.integer(ifelse(prime_ms >= 283 | mask_ms >= 67, "1", "0")))
+APP2 <- lapply(APP2, transform, timing = as.integer(ifelse(prime_ms >= 283 | mask_ms >= 67, "1", "0")))
 
-#Get proportion of trials to be excluded
-APP1_times <- ldply(APP1, function(x) times = mean(x$timing))
-APP2_times <- ldply(APP2, function(x) times = mean(x$timing))
+# Get proportion of trials to be excluded
+APP1_times <- ldply(APP1, function(x) times <- mean(x$timing))
+APP2_times <- ldply(APP2, function(x) times <- mean(x$timing))
 
-#Retrieve IDs for participants who can be included in analyses
-APP1_incl <- unique(APP1_times$.id[APP1_times$V1<0.25])
-APP2_incl <- unique(APP2_times$.id[APP2_times$V1<0.25])
+# Retrieve IDs for participants who can be included in analyses
+APP1_incl <- unique(APP1_times$.id[APP1_times$V1 < 0.25])
+APP2_incl <- unique(APP2_times$.id[APP2_times$V1 < 0.25])
 
-#Remove trials from the APP data frame lists and original data lists for exclusion of FCT data lists which will be created later in the script
+# Remove trials from the APP data frame lists and original data lists for exclusion of FCT data lists which will be created later in the script
 APP1 <- APP1[sapply(APP1, function(x) any(x$participant %in% APP1_incl))]
 APP2 <- APP2[sapply(APP2, function(x) any(x$participant %in% APP2_incl))]
 
@@ -127,33 +139,33 @@ data2 <- data2[sapply(data2, function(x) any(x$subject %in% APP2_incl))]
 
 Remove trials with timing delays from the data
 ```{r}
-APP1 <- lapply(APP1, subset, timing==0)
-APP2 <- lapply(APP2, subset, timing==0)
+APP1 <- lapply(APP1, subset, timing == 0)
+APP2 <- lapply(APP2, subset, timing == 0)
 ```
 
 * Seperate food and non-food prime trials 
 
 ```{r}
-#Make two subsets for control and food prime trials
-nonfood1 <- lapply(APP1, subset, prime_type=="nonfood")
-nonfood2 <- lapply(APP2, subset, prime_type=="nonfood")
+# Make two subsets for control and food prime trials
+nonfood1 <- lapply(APP1, subset, prime_type == "nonfood")
+nonfood2 <- lapply(APP2, subset, prime_type == "nonfood")
 
-food1 <- lapply(APP1, subset, prime_type=="food")
-food2 <- lapply(APP2, subset, prime_type=="food")
+food1 <- lapply(APP1, subset, prime_type == "food")
+food2 <- lapply(APP2, subset, prime_type == "food")
 ```
 
 * Recode accuracy for all datasets
 
 ```{r}
-#Recode accuracy values into 0s and 1s for descriptive statistics
-#Coding is reversed to get the proportion of error rates (ER); i.e., 1=incorrect; 0=correct
-nonfood1<- lapply(nonfood1, transform, accuracy = as.integer(ifelse(accuracy==1, "0", "1")))
-nonfood2<- lapply(nonfood2, transform, accuracy = as.integer(ifelse(accuracy==1, "0", "1")))
+# Recode accuracy values into 0s and 1s for descriptive statistics
+# Coding is reversed to get the proportion of error rates (ER); i.e., 1=incorrect; 0=correct
+nonfood1 <- lapply(nonfood1, transform, accuracy = as.integer(ifelse(accuracy == 1, "0", "1")))
+nonfood2 <- lapply(nonfood2, transform, accuracy = as.integer(ifelse(accuracy == 1, "0", "1")))
 
-food1<- lapply(food1, transform, accuracy = as.integer(ifelse(accuracy==1, "0", "1")))
-food2<- lapply(food2, transform, accuracy = as.integer(ifelse(accuracy==1, "0", "1")))
+food1 <- lapply(food1, transform, accuracy = as.integer(ifelse(accuracy == 1, "0", "1")))
+food2 <- lapply(food2, transform, accuracy = as.integer(ifelse(accuracy == 1, "0", "1")))
 
-#Clear factor levels from subsetted data lists
+# Clear factor levels from subsetted data lists
 nonfood1 <- lapply(nonfood1, droplevels)
 nonfood2 <- lapply(nonfood2, droplevels)
 
@@ -164,38 +176,38 @@ food2 <- lapply(food2, droplevels)
 * Apply functions to obtain descriptive statistics and create data frames for analyses
 
 ```{r}
-#Error rates from non-food trials
+# Error rates from non-food trials
 nonfood1_ER <- ldply(nonfood1, NF_ER)
 nonfood2_ER <- ldply(nonfood2, NF_ER)
 
-#Error rates from food trials
+# Error rates from food trials
 food1_ER <- ldply(food1, F_ER)
 food2_ER <- ldply(food2, F_ER)
 
-#Create lists with correct trials
-#A new list is introduced here as access to the original list may be needed later on (e.g., data checks)
-nonfood1_cor <- lapply(nonfood1, subset, accuracy==0)
-nonfood2_cor <- lapply(nonfood2, subset, accuracy==0)
+# Create lists with correct trials
+# A new list is introduced here as access to the original list may be needed later on (e.g., data checks)
+nonfood1_cor <- lapply(nonfood1, subset, accuracy == 0)
+nonfood2_cor <- lapply(nonfood2, subset, accuracy == 0)
 
-food1_cor <- lapply(food1, subset, accuracy==0)
-food2_cor <- lapply(food2, subset, accuracy==0)
+food1_cor <- lapply(food1, subset, accuracy == 0)
+food2_cor <- lapply(food2, subset, accuracy == 0)
 
-#Median RTs of correct trials from non-food trials
+# Median RTs of correct trials from non-food trials
 nonfood1_RT <- ldply(nonfood1_cor, NF_RT)
 nonfood2_RT <- ldply(nonfood2_cor, NF_RT)
 
-#Median RTs of correct trials from food trials
+# Median RTs of correct trials from food trials
 food1_RT <- ldply(food1_cor, F_RT)
 food2_RT <- ldply(food2_cor, F_RT)
 
-#Bind both dataframes with descriptives together to get one file for all analyses
+# Bind both dataframes with descriptives together to get one file for all analyses
 nonfood1_app <- cbind(nonfood1_RT, nonfood1_ER)
 nonfood2_app <- cbind(nonfood2_RT, nonfood2_ER)
 
 food1_app <- cbind(food1_RT, food1_ER)
 food2_app <- cbind(food2_RT, food2_ER)
 
-#Remove duplicate .id column that was created during binding
+# Remove duplicate .id column that was created during binding
 nonfood1_app <- nonfood1_app[, !duplicated(colnames(nonfood1_app))]
 nonfood2_app <- nonfood2_app[, !duplicated(colnames(nonfood2_app))]
 
@@ -206,11 +218,15 @@ food2_app <- food2_app[, !duplicated(colnames(food2_app))]
 * Participants with error rates (ERs) greater or equal to 0.4 in either food or non-food prime trials will be excluded from all respective analyses
   
 ```{r}
-#Get IDs of participants that will be included in analyses based on ER < 0.4
-ER1_excl <- unique(c(unique(nonfood1_app$.id[nonfood1_app$ER>=0.4]), unique(food1_app$.id[food1_app$ER>=0.4])))
-ER2_excl <- unique(c(unique(nonfood2_app$.id[nonfood2_app$ER>=0.4]), unique(food2_app$.id[food2_app$ER>=0.4])))
+# Get IDs of participants that will be excluded based on ER >= 0.4
+ER1_excl <- unique(c(unique(nonfood1_app$.id[nonfood1_app$ER >= 0.4]), unique(food1_app$.id[food1_app$ER >= 0.4])))
+ER2_excl <- unique(c(unique(nonfood2_app$.id[nonfood2_app$ER >= 0.4]), unique(food2_app$.id[food2_app$ER >= 0.4])))
 
-#Remove participants from analyses datasets and data1/data2 which will be later pre-processed for FCT analyses
+# Get IDs of participants that have an ER >= 0.25
+ER1_excl <- unique(c(unique(nonfood1_app$.id[nonfood1_app$ER >= 0.4]), unique(food1_app$.id[food1_app$ER >= 0.4])))
+ER2_excl <- unique(c(unique(nonfood2_app$.id[nonfood2_app$ER >= 0.4]), unique(food2_app$.id[food2_app$ER >= 0.4])))
+
+# Remove participants from analyses datasets and data1/data2 which will be later pre-processed for FCT analyses
 nonfood1_app <- subset(nonfood1_app, !(.id %in% ER1_excl))
 nonfood2_app <- subset(nonfood2_app, !(.id %in% ER2_excl))
 
@@ -219,76 +235,80 @@ food2_app <- subset(food2_app, !(.id %in% ER2_excl))
 
 data1 <- data1[sapply(data1, function(x) any(!x$subject %in% ER1_excl))]
 data2 <- data2[sapply(data2, function(x) any(!x$subject %in% ER2_excl))]
+
+# Get IDs of participants that have an ER >= 0.25 for robustness checks
+ER1_excl2 <- unique(c(unique(nonfood1_app$.id[nonfood1_app$ER >= 0.25]), unique(food1_app$.id[food1_app$ER >= 0.25])))
+ER2_excl2 <- unique(c(unique(nonfood2_app$.id[nonfood2_app$ER >= 0.25]), unique(food2_app$.id[food2_app$ER >= 0.25])))
 ```
 
 
 * Calculate priming effects for confirmatory analyses
 
 ```{r}
-#Lab data
-food1_app$DRT_h = food1_app$inc_hml_RT - food1_app$con_hml_RT
-food1_app$DRT_u = food1_app$inc_uml_RT - food1_app$con_uml_RT
+# Lab data
+food1_app$DRT_h <- food1_app$inc_hml_RT - food1_app$con_hml_RT
+food1_app$DRT_u <- food1_app$inc_uml_RT - food1_app$con_uml_RT
 
-food1_app$DER_h = food1_app$inc_hml_ER - food1_app$con_hml_ER
-food1_app$DER_u = food1_app$inc_uml_ER - food1_app$con_uml_ER
+food1_app$DER_h <- food1_app$inc_hml_ER - food1_app$con_hml_ER
+food1_app$DER_u <- food1_app$inc_uml_ER - food1_app$con_uml_ER
 
-food1_app$DRT_hml = food1_app$DRT_u - food1_app$DRT_h
+food1_app$DRT_hml <- food1_app$DRT_u - food1_app$DRT_h
 
-#Online data
-food2_app$DRT_h = food2_app$inc_hml_RT - food2_app$con_hml_RT
-food2_app$DRT_u = food2_app$inc_uml_RT - food2_app$con_uml_RT
+# Online data
+food2_app$DRT_h <- food2_app$inc_hml_RT - food2_app$con_hml_RT
+food2_app$DRT_u <- food2_app$inc_uml_RT - food2_app$con_uml_RT
 
-food2_app$DER_h = food2_app$inc_hml_ER - food2_app$con_hml_ER
-food2_app$DER_u = food2_app$inc_uml_ER - food2_app$con_uml_ER
+food2_app$DER_h <- food2_app$inc_hml_ER - food2_app$con_hml_ER
+food2_app$DER_u <- food2_app$inc_uml_ER - food2_app$con_uml_ER
 
-food2_app$DRT_hml = food2_app$DRT_u - food2_app$DRT_h
+food2_app$DRT_hml <- food2_app$DRT_u - food2_app$DRT_h
 ```
 
 * Obtain difference scores for effect size calculation and normality tests
 
 ```{r}
-#Lab data
-food1_app$diff_RT = food1_app$con_RT - food1_app$inc_RT
-food1_app$diff_RT_h = food1_app$con_h_RT - food1_app$inc_h_RT
-food1_app$diff_RT_u = food1_app$con_u_RT - food1_app$inc_u_RT
-food1_app$diff_DRT = food1_app$DRT_h - food1_app$DRT_u
+# Lab data
+food1_app$diff_RT <- food1_app$con_RT - food1_app$inc_RT
+food1_app$diff_RT_h <- food1_app$con_h_RT - food1_app$inc_h_RT
+food1_app$diff_RT_u <- food1_app$con_u_RT - food1_app$inc_u_RT
+food1_app$diff_DRT <- food1_app$DRT_u - food1_app$DRT_h
 
-food1_app$diff_ER = food1_app$con_ER - food1_app$inc_ER
-food1_app$diff_ER_h = food1_app$con_h_ER - food1_app$inc_h_ER
-food1_app$diff_ER_u = food1_app$con_u_ER - food1_app$inc_u_ER
-food1_app$diff_DER = food1_app$DER_h - food1_app$DER_u
+food1_app$diff_ER <- food1_app$con_ER - food1_app$inc_ER
+food1_app$diff_ER_h <- food1_app$con_h_ER - food1_app$inc_h_ER
+food1_app$diff_ER_u <- food1_app$con_u_ER - food1_app$inc_u_ER
+food1_app$diff_DER <- food1_app$DER_u - food1_app$DER_h
 
-nonfood1_app$diff_RT = nonfood1_app$con_RT - nonfood1_app$inc_RT
-nonfood1_app$diff_ER = nonfood1_app$con_ER - nonfood1_app$inc_ER
+nonfood1_app$diff_RT <- nonfood1_app$con_RT - nonfood1_app$inc_RT
+nonfood1_app$diff_ER <- nonfood1_app$con_ER - nonfood1_app$inc_ER
 
-#Online data 
-food2_app$diff_RT = food2_app$con_RT - food2_app$inc_RT
-food2_app$diff_RT_h = food2_app$con_h_RT - food2_app$inc_h_RT
-food2_app$diff_RT_u = food2_app$con_u_RT - food2_app$inc_u_RT
-food2_app$diff_DRT = food2_app$DRT_h - food2_app$DRT_u
+# Online data
+food2_app$diff_RT <- food2_app$con_RT - food2_app$inc_RT
+food2_app$diff_RT_h <- food2_app$con_h_RT - food2_app$inc_h_RT
+food2_app$diff_RT_u <- food2_app$con_u_RT - food2_app$inc_u_RT
+food2_app$diff_DRT <- food2_app$DRT_u - food2_app$DRT_h
 
-food2_app$diff_ER = food2_app$con_ER - food2_app$inc_ER
-food2_app$diff_ER_h = food2_app$con_h_ER - food2_app$inc_h_ER
-food2_app$diff_ER_u = food2_app$con_u_ER - food2_app$inc_u_ER
-food2_app$diff_DER = food2_app$DER_h - food2_app$DER_u
+food2_app$diff_ER <- food2_app$con_ER - food2_app$inc_ER
+food2_app$diff_ER_h <- food2_app$con_h_ER - food2_app$inc_h_ER
+food2_app$diff_ER_u <- food2_app$con_u_ER - food2_app$inc_u_ER
+food2_app$diff_DER <- food2_app$DER_u - food2_app$DER_h
 
-nonfood2_app$diff_RT = nonfood2_app$con_RT - nonfood2_app$inc_RT
-nonfood2_app$diff_ER = nonfood2_app$con_ER - nonfood2_app$inc_ER
+nonfood2_app$diff_RT <- nonfood2_app$con_RT - nonfood2_app$inc_RT
+nonfood2_app$diff_ER <- nonfood2_app$con_ER - nonfood2_app$inc_ER
 ```
 
 #### Pre-processing of FCT data 
 
 ```{r}
-#Select FCT blocks from datasets and selected columns
-FCT1 <- lapply(data1, subset, blockcode=="FC_L"|blockcode=="FC_R", select=c(1:5, 16:17, 27,29))
-FCT2 <- lapply(data2, subset, blockcode=="FC_L"|blockcode=="FC_R", select=c(1:5, 16:17, 27,29))
+# Select FCT blocks from datasets and selected columns
+FCT1 <- lapply(data1, subset, blockcode == "FC_L" | blockcode == "FC_R", select = c(1:5, 16:17, 27, 29))
+FCT2 <- lapply(data2, subset, blockcode == "FC_L" | blockcode == "FC_R", select = c(1:5, 16:17, 27, 29))
 
-#Remove factor levels that are no longer used 
+# Remove factor levels that are no longer used
 FCT1 <- lapply(FCT1, droplevels)
 FCT2 <- lapply(FCT2, droplevels)
 
-#Change the column names 
-names2 <- c("participant","block","trial", "response", "rt", "choice", "FCrepeat", "stim1", "stim2")
+# Change the column names
+names2 <- c("participant", "block", "trial", "response", "rt", "choice", "FCrepeat", "stim1", "stim2")
 
 FCT1 <- lapply(FCT1, setNames, nm = names2)
 FCT2 <- lapply(FCT2, setNames, nm = names2)
@@ -304,43 +324,41 @@ FCT2 <- lapply(FCT2, setNames, nm = names2)
 > FCrepeat==0 --> participants responded on the trial either initially, or after it was repeated
 
 ```{r}
-#Haven't accounted for people who quit during the FCT- is this captured for exclusions
+# Remove feedback trials (for complete and missed responses) as well as missed trials
+FCT1 <- lapply(FCT1, subset, FCrepeat != 1)
+FCT2 <- lapply(FCT2, subset, FCrepeat != 1)
 
-#Remove feedback trials (for complete and missed responses) as well as missed trials 
-FCT1 <- lapply(FCT1, subset, FCrepeat!=1)
-FCT2 <- lapply(FCT2, subset, FCrepeat!=1)
+FCT1 <- lapply(FCT1, subset, trial == "HC_ML" | trial == "HC_LL" | trial == "LC_HF" | trial == "LC_UF")
+FCT2 <- lapply(FCT2, subset, trial == "HC_ML" | trial == "HC_LL" | trial == "LC_HF" | trial == "LC_UF")
 
-FCT1 <- lapply(FCT1, subset, trial=="HC_ML"|trial=="HC_LL"|trial=="LC_HF"|trial=="LC_UF")
-FCT2 <- lapply(FCT2, subset, trial=="HC_ML"|trial=="HC_LL"|trial=="LC_HF"|trial=="LC_UF")
+# Recode 'missed response' values into 0s and 1s for mean calculation
+# Coding is reversed to get the proportion of missed responses; i.e., 1=missed; 0=completed
+FCT1 <- lapply(FCT1, transform, response = as.integer(ifelse(response == 0, "1", "0")))
+FCT2 <- lapply(FCT2, transform, response = as.integer(ifelse(response == 0, "1", "0")))
 
-#Recode 'missed response' values into 0s and 1s for mean calculation
-#Coding is reversed to get the proportion of missed responses; i.e., 1=missed; 0=completed
-FCT1<- lapply(FCT1, transform, response = as.integer(ifelse(response==0, "1", "0")))
-FCT2<- lapply(FCT2, transform, response = as.integer(ifelse(response==0, "1", "0")))
-
-#Clear factor levels 
+# Clear factor levels
 FCT1 <- lapply(FCT1, droplevels)
 FCT2 <- lapply(FCT2, droplevels)
 
-#Get proportion of missed responses per trial type
+# Get proportion of missed responses per trial type
 FCT1_miss <- ldply(FCT1, FCT_miss)
 FCT2_miss <- ldply(FCT2, FCT_miss)
 
-#V1 = Proportion of missed responses in LC_HF trials
-#V2 = Proportion of missed responses in LC_UF trials
-#V3 = Proportion of missed responses in HC_ML trials
+# V1 = Proportion of missed responses in LC_HF trials
+# V2 = Proportion of missed responses in LC_UF trials
+# V3 = Proportion of missed responses in HC_ML trials
 
-#Retrieve IDs for participants who can be included in FCT analyses (H4)
-FCT1_incl <- unique(FCT1_miss$.id[FCT1_miss$V1<0.25 & FCT1_miss$V2<0.25 & FCT1_miss$V3<0.25])
-FCT2_incl <- unique(FCT2_miss$.id[FCT2_miss$V1<0.25 & FCT2_miss$V2<0.25 & FCT2_miss$V3<0.25])
+# Retrieve IDs for participants who can be included in FCT analyses (H4)
+FCT1_incl <- unique(FCT1_miss$.id[FCT1_miss$V1 < 0.25 & FCT1_miss$V2 < 0.25 & FCT1_miss$V3 < 0.25])
+FCT2_incl <- unique(FCT2_miss$.id[FCT2_miss$V1 < 0.25 & FCT2_miss$V2 < 0.25 & FCT2_miss$V3 < 0.25])
 
-#Remove participants from FCT data frame lists
+# Remove participants from FCT data frame lists
 FCT1 <- FCT1[sapply(FCT1, function(x) any(x$participant %in% FCT1_incl))]
 FCT2 <- FCT2[sapply(FCT2, function(x) any(x$participant %in% FCT2_incl))]
 
-#Remove trials from the FCT data frame lists 
-FCT1 <- lapply(FCT1, subset, response==0)
-FCT2 <- lapply(FCT2, subset, response==0)
+# Remove trials from the FCT data frame lists
+FCT1 <- lapply(FCT1, subset, response == 0)
+FCT2 <- lapply(FCT2, subset, response == 0)
 ```
 
 * Get data frames with FCT outcomes of interest:
@@ -356,24 +374,29 @@ FCT2 <- lapply(FCT2, subset, response==0)
 least liked food items in the most liked vs least liked trials when both healthy and unhealthy food pairs are presented, which should be below 0.5 if prime selection according to liking was successful [see also 33].
 
 
-
 ```{r}
-#Recode choices according to trial types with 1s and 0s to get choice probabilities
-FCT1 <- lapply(FCT1, transform, choice = ifelse((trial=="LC_HF" & choice=="HF_ML"),"1",
-                                         ifelse((trial=="LC_UF" & choice=="UF_ML"),"1",
-                                         ifelse((trial=="HC_ML" & choice=="UF_ML"),"1",
-                                         ifelse((trial=="HC_LL" & choice=="UF_LL"),"1", "0")))))
+# Recode choices according to trial types with 1s and 0s to get choice probabilities
+FCT1 <- lapply(FCT1, transform, choice = ifelse((trial == "LC_HF" & choice == "HF_ML"), "1",
+  ifelse((trial == "LC_UF" & choice == "UF_ML"), "1",
+    ifelse((trial == "HC_ML" & choice == "UF_ML"), "1",
+      ifelse((trial == "HC_LL" & choice == "UF_LL"), "1", "0")
+    )
+  )
+))
 
-FCT2 <- lapply(FCT2, transform, choice = ifelse((trial=="LC_HF" & choice=="HF_ML"),"1",
-                                         ifelse((trial=="LC_UF" & choice=="UF_ML"),"1",
-                                         ifelse((trial=="HC_ML" & choice=="UF_ML"),"1",
-                                         ifelse((trial=="HC_LL" & choice=="UF_LL"),"1", "0")))))
+FCT2 <- lapply(FCT2, transform, choice = ifelse((trial == "LC_HF" & choice == "HF_ML"), "1",
+  ifelse((trial == "LC_UF" & choice == "UF_ML"), "1",
+    ifelse((trial == "HC_ML" & choice == "UF_ML"), "1",
+      ifelse((trial == "HC_LL" & choice == "UF_LL"), "1", "0")
+    )
+  )
+))
 
-#Change values into integer format 
-FCT1 <- lapply(FCT1, transform, choice=as.integer(choice))
-FCT2 <- lapply(FCT2, transform, choice=as.integer(choice))
+# Change values into integer format
+FCT1 <- lapply(FCT1, transform, choice = as.integer(choice))
+FCT2 <- lapply(FCT2, transform, choice = as.integer(choice))
 
-#Apply function for FCT outcomes
+# Apply function for FCT outcomes
 FCT1_outcomes <- ldply(FCT1, FCT_p)
 FCT2_outcomes <- ldply(FCT2, FCT_p)
 ```
@@ -382,40 +405,35 @@ FCT2_outcomes <- ldply(FCT2, FCT_p)
 
 * Shapiro-Wilk tests for RTs (H1a, H2a-H2d)
 ```{r warning=FALSE}
-#The function saves the p-values from the tests in 'SW_RT'
+# The function saves the p-values from the tests in 'SW_RT'
 SW_RT1 <- Shapiro_wilk_RTs(food1_app, nonfood1_app)
 SW_RT2 <- Shapiro_wilk_RTs(food2_app, nonfood2_app)
 
-#If the normality assumption is violated for H1a (non-food trials) and predictions under H2 (food trials)
-#RTs will be log-transformed accordingly (e.g., H2a violates assumption, then RTs for H2b, H2c and H2d will be transformed as well)
+# If the normality assumption is violated for H1a (non-food trials) and predictions under H2 (food trials)
+# RTs will be log-transformed accordingly (e.g., H2a violates assumption, then RTs for H2b, H2c and H2d will be transformed as well)
 
 nonfood1_app <- log_H1a(data = nonfood1_app, sw = SW_RT1)
 food1_app <- log_H2(data = food1_app, sw = SW_RT1)
 
 nonfood2_app <- log_H1a(data = nonfood2_app, sw = SW_RT2)
 food2_app <- log_H2(data = food2_app, sw = SW_RT2)
-    
-#If RTs are log transformed we will need to recalculate the difference scores- code same as used above
-    
+
+# If RTs are log transformed we will need to recalculate the difference scores
+
 food1_app <- log_diff(food1_app)
 food2_app <- log_diff(food2_app)
 ```
 
-<!-- TODO here as well-->
-
-<!--REVIEW this-->
 
 * Shapiro-Wilk tests for ERs (H1b, H3a-H3d)
   
 ```{r}
-# TODO doesn't seem to work on html-- 
-
-#The function saves the p-values from the tests in 'SW_ER'
+# The function saves the p-values from the tests in 'SW_ER'
 SW_ER1 <- Shapiro_wilk_ERs(food1_app, nonfood1_app)
 SW_ER2 <- Shapiro_wilk_ERs(food2_app, nonfood2_app)
 
-#Bayesian analyses for error rates will be carried out irrespective of the results, but we will report supplementary non-parametric frequentist statistics
-#Under 'ttestPS' function from the 'jmv' package we will set the argument "wilcoxon" to TRUE. 
+# Bayesian analyses for error rates will be carried out irrespective of the results, but we will report supplementary non-parametric frequentist statistics
+# Under 'ttestPS' function from the 'jmv' package we will set the argument "wilcoxon" to TRUE.
 
 SW_ER1
 SW_ER2
@@ -424,37 +442,33 @@ SW_ER2
 #### Merging APP and FCT data for analyses
 
 ```{r}
-#FCT data may have excluded participants that were included in the APP data sets
+# FCT data may have excluded participants that were included in the APP data sets
 
-FCT_app1 <- subset(food1_app, select=c(".id", "DRT_h", "DRT_u", "DRT_hml"))
+FCT_app1 <- subset(food1_app, select = c(".id", "DRT_h", "DRT_u", "DRT_hml"))
 FCT_app1 <- subset(FCT_app1, .id %in% FCT1_incl)
 
-#if (food2_app$transform=="none") {
-#  FCT_app2 <- subset(food2_app, select=c(".id", "DRT_h", "DRT_u", "DRT_hml"))
-#} else {
-#  FCT_app2 <- subset(food2_app, select=c(".id", "DRT_h_log", "DRT_u_log", "DRT_hml_log"))
-#}
-
-FCT_app2 <- subset(food2_app, select=c(".id", "DRT_h", "DRT_u", "DRT_hml"))
+FCT_app2 <- subset(food2_app, select = c(".id", "DRT_h", "DRT_u", "DRT_hml"))
 FCT_app2 <- subset(FCT_app2, .id %in% FCT2_incl)
 
-#Merge datasets
+# Merge datasets
 FCT_full1 <- cbind(FCT_app1, FCT1_outcomes)
 FCT_full2 <- cbind(FCT_app2, FCT2_outcomes)
 
-#Remove .id duplicate
+# Remove .id duplicate
 FCT_full1 <- FCT_full1[, !duplicated(colnames(FCT_full1))]
 FCT_full2 <- FCT_full2[, !duplicated(colnames(FCT_full2))]
 ```
 
-#### Export created data frames for potential use in later manuscript
+#### Export created data frames
+
 ```{r}
-write.csv(food1_app, "food1_app.csv", row.names=FALSE)
-write.csv(food2_app, "food2_app.csv", row.names=FALSE)
-write.csv(nonfood1_app, "nonfood1_app.csv", row.names=FALSE)
-write.csv(nonfood2_app, "nonfood2_app.csv", row.names=FALSE)
+write.csv(food1_app, "food1_app.csv", row.names = FALSE)
+write.csv(food2_app, "food2_app.csv", row.names = FALSE)
+write.csv(nonfood1_app, "nonfood1_app.csv", row.names = FALSE)
+write.csv(nonfood2_app, "nonfood2_app.csv", row.names = FALSE)
 
 write.csv(FCT_full1, "FCT1.csv", row.names = FALSE)
 write.csv(FCT_full2, "FCT2.csv", row.names = FALSE)
 ```
+
 
