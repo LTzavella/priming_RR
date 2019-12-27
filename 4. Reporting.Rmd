@@ -27,11 +27,11 @@ fct_lab <- subset(FCT_full1, select = c(1, 4:7))
 fct_onl <- subset(FCT_full2, select = c(1, 4:7))
 
 
-write.csv(app_lab, here("reporting", "app_lab.csv"), row.names = FALSE)
-write.csv(app_onl, here("reporting", "app_onl.csv"), row.names = FALSE)
+write.csv(app_lab, "app_lab.csv", row.names = FALSE)
+write.csv(app_onl, "app_onl.csv", row.names = FALSE)
 
-write.csv(fct_lab, here("reporting", "fct_lab.csv"), row.names = FALSE)
-write.csv(fct_onl, here("reporting", "fct_onl.csv"), row.names = FALSE)
+write.csv(fct_lab, "fct_lab.csv", row.names = FALSE)
+write.csv(fct_onl, "fct_onl.csv", row.names = FALSE)
 ```
 
 ## Extract all relevant variables and create mega summary data files for all participants
@@ -563,12 +563,12 @@ table(mega2$BMI_valid)
 mega1$BMI <- ifelse(mega1$BMI_valid == "valid", mega1$BMI, NA)
 mega2$BMI <- ifelse(mega2$BMI_valid == "valid", mega2$BMI, NA)
 
-write.csv(mega1, here("reporting", "mega1.csv"), row.names = FALSE)
-write.csv(mega2, here("reporting", "mega2.csv"), row.names = FALSE)
+write.csv(mega1, "mega1.csv", row.names = FALSE)
+write.csv(mega2, "mega2.csv", row.names = FALSE)
 
 # For reporting purposes we don't need priming measures again so exclude from file
-write.csv(subset(mega1, select = c(1:53, 61:79)), here("reporting", "mega_lab.csv"), row.names = FALSE)
-write.csv(subset(mega2, select = c(1:53, 61:79)), here("reporting", "mega_onl.csv"), row.names = FALSE)
+write.csv(subset(mega1, select = c(1:53, 61:79)), "mega_lab.csv", row.names = FALSE)
+write.csv(subset(mega2, select = c(1:53, 61:79)), "mega_onl.csv", row.names = FALSE)
 ```
 
 ### Percentages for categorical variables 
