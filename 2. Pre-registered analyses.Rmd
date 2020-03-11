@@ -443,6 +443,16 @@ H4b.ST1
 H4c.ST1
 ```
 
+* Output for two-tailed correlation CIs
+
+The one-tailed CIs are not informative at all because of fixed bounds (e.g. for positive correlations the upper bound is always 1) and therefore we report the two-tailed CIs as implemented in other software to report these in the main manuscript:
+
+```{r}
+corrMatrix(FCT_full1, vars = c("DRT_h", "p.mh"), sig = TRUE, ci = TRUE)
+corrMatrix(FCT_full1, vars = c("DRT_u", "p.mu"), sig = TRUE, ci = TRUE)
+corrMatrix(FCT_full1, vars = c("DRT_hml", "p.um"), sig = TRUE, ci = TRUE)
+```
+
 #### Supplementary frequentist analyses for online sample
 
 * Frequentist paired samples t-tests for H1 [manipulation check]
@@ -579,6 +589,15 @@ H4b.ST2
 ```{r}
 H4c.ST2
 ```
+
+* Output for two-tailed correlation CIs
+
+```{r}
+corrMatrix(FCT_full2, vars = c("DRT_h", "p.mh"), sig = TRUE, ci = TRUE)
+corrMatrix(FCT_full2, vars = c("DRT_u", "p.mu"), sig = TRUE, ci = TRUE)
+corrMatrix(FCT_full2, vars = c("DRT_hml", "p.um"), sig = TRUE, ci = TRUE)
+```
+
 
 #### Calculate Cohen's dav for all hypotheses
 
