@@ -12,6 +12,21 @@ output: html_document
 > We use the initial 'S' to refer to sensitivity analyses across this script (e.g., "food1_app_S").
 > Outlier removal criteria have been adopted from previous literature, as cited in the manuscript. 
 
+```{r message=FALSE, warning=FALSE}
+# Required R packages are shown below.
+# Please note that the current script has beeen developed under R version 3.4.3
+
+required.packages <- c("plyr", "trimr")
+new.packages <- required.packages[!(required.packages %in% installed.packages()[, "Package"])]
+if (length(new.packages) > 0) {
+  install.packages(required.packages)
+}
+
+require(plyr)
+#require(here)
+require(trimr)
+```
+
 #### Mean instead of median RTs at the participant level and outlier exclusion criteria
 
 * Prepare data for 'trimr' functions  that removes outliers based on absolute values and/or SDs
@@ -49,6 +64,7 @@ nonfood2_cor <- nonfood2_cor[sapply(nonfood2_cor, function(x) any(!x$participant
 * Outlier exclusion 1: Remove RTs <250 ms
 
 ```{r}
+library(plyr)
 # First we record the number of trials that meet the criterion to manually check whether
 # how much data would be removed for each participant and how many participants in total
 food1_cor <- lapply(food1_cor, transform, MinRT = ifelse(rt < 250, 1, 0))

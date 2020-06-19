@@ -206,7 +206,7 @@ log_diff <- function(data) {
    data$diff_RT_log = data$logRTcon - data$logRTinc
    data$diff_RT_h_log = data$logRTcon_h - data$logRTinc_h
    data$diff_RT_u_log = data$logRTcon_u - data$logRTinc_u
-   data$diff_DRT_log = data$DRT_h_log - data$DRT_u_log
+   data$diff_DRT_log = data$DRT_u_log - data$DRT_h_log
   }
   return(data)
 }
@@ -246,3 +246,44 @@ F_means <- function(x) {
     inc_ull_RT = mean(x$rt[x$trial == "ULL_inc"])
   )
 }
+
+
+log_H2R <- function(data, sw) {
+  if (sw[2] <= 0.005 | sw[3] <= 0.005 | sw[4] <= 0.005 | sw[5] <= 0.005) {
+    data[27] <- log(data[2])
+    data[28] <- log(data[3])
+    data[29] <- log(data[4])
+    data[30] <- log(data[5])
+    data[31] <- log(data[6])
+    data[32] <- log(data[7])
+    data[33] <- log(data[12])
+    data[34] <- log(data[13])
+    data[35] <- log(data[14])
+    data[36] <- log(data[15])
+    names(data)[27] <- "logRTcon"
+    names(data)[28] <- "logRTinc"
+    names(data)[29] <- "logRTcon_h"
+    names(data)[30] <- "logRTinc_h"
+    names(data)[31] <- "logRTcon_u"
+    names(data)[32] <- "logRTinc_u"
+    names(data)[33] <- "logRTcon_hml"
+    names(data)[34] <- "logRTinc_hml"
+    names(data)[35] <- "logRTcon_uml"
+    names(data)[36] <- "logRTinc_uml"
+    data$transform <- "log"
+  } else {data$transform <- "none"}
+  return(data)
+}
+
+log_H1R <- function(data, sw) {
+  if (sw[1] <= 0.005) {
+    data[5] <- log(data[2])
+    data[6] <- log(data[3])
+    names(data)[5] <- "logRTcon"
+    names(data)[6] <- "logRTinc"
+    data$transform <- "log"
+    data$diff_RT_log  = data$logRTcon - data$logRTinc
+  } else {data$transform <- "none"}
+  return(data)
+}
+

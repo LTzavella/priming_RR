@@ -22,7 +22,7 @@ These can later be used in analyses scripts. However, if you want to revisit ana
 >  save(list = ls(all.names = TRUE), file = here("R_Objects.RData"), envir = .GlobalEnv)
 
 
-```{r message=FALSE}
+```{r message=FALSE, warning=FALSE}
 # Required R packages are shown below.
 # Please note that the current script has beeen developed under R version 3.4.3
 #
@@ -219,10 +219,6 @@ food2_app <- food2_app[, !duplicated(colnames(food2_app))]
   
 ```{r}
 # Get IDs of participants that will be excluded based on ER >= 0.4
-ER1_excl <- unique(c(unique(nonfood1_app$.id[nonfood1_app$ER >= 0.4]), unique(food1_app$.id[food1_app$ER >= 0.4])))
-ER2_excl <- unique(c(unique(nonfood2_app$.id[nonfood2_app$ER >= 0.4]), unique(food2_app$.id[food2_app$ER >= 0.4])))
-
-# Get IDs of participants that have an ER >= 0.25
 ER1_excl <- unique(c(unique(nonfood1_app$.id[nonfood1_app$ER >= 0.4]), unique(food1_app$.id[food1_app$ER >= 0.4])))
 ER2_excl <- unique(c(unique(nonfood2_app$.id[nonfood2_app$ER >= 0.4]), unique(food2_app$.id[food2_app$ER >= 0.4])))
 
